@@ -35,7 +35,7 @@ export default async function EstadisticasPage({
       <div>
         <Link
           href={`/grupos/${groupId}`}
-          className="mb-2 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
         >
           ← {group.name}
         </Link>
@@ -57,15 +57,15 @@ export default async function EstadisticasPage({
             <li key={s.player_id}>
               <Card className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-6 text-center text-lg font-bold text-zinc-500">
+                  <div className="w-6 text-center text-lg font-bold text-neutral-400">
                     {i + 1}
                   </div>
                   <Avatar name={s.display_name ?? "?"} size={40} />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-semibold text-white">
+                    <div className="truncate font-semibold text-neutral-900">
                       {s.display_name}
                     </div>
-                    <div className="text-xs text-zinc-400">
+                    <div className="text-xs text-neutral-500">
                       {s.games_played} partidas · {s.games_won} ganadas
                     </div>
                   </div>

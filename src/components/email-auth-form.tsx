@@ -103,12 +103,12 @@ export function EmailAuthForm({ next }: { next?: string }) {
       </div>
 
       {error && (
-        <p className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-300">
+        <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </p>
       )}
       {info && (
-        <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-300">
+        <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {info}
         </p>
       )}
@@ -125,7 +125,7 @@ export function EmailAuthForm({ next }: { next?: string }) {
             : "Crear cuenta"}
       </button>
 
-      <p className="pt-1 text-center text-sm text-zinc-400">
+      <p className="pt-1 text-center text-sm text-neutral-500">
         {mode === "signin" ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}{" "}
         <button
           type="button"
@@ -134,7 +134,7 @@ export function EmailAuthForm({ next }: { next?: string }) {
             setError(null);
             setInfo(null);
           }}
-          className="font-medium text-emerald-400 hover:text-emerald-300"
+          className="font-medium text-neutral-900 underline underline-offset-2 hover:text-neutral-600"
         >
           {mode === "signin" ? "Crea una" : "Inicia sesión"}
         </button>

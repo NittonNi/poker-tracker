@@ -49,13 +49,13 @@ function Form({ close, groupId }: { close: () => void; groupId: string }) {
           onKeyDown={(e) => e.key === "Enter" && submit()}
           autoFocus
         />
-        <p className="mt-1.5 text-xs text-zinc-500">
+        <p className="mt-1.5 text-xs text-neutral-400">
           Puedes añadir invitados que no tengan cuenta. Cuentan igual en las
           partidas y la liquidación.
         </p>
       </div>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2">
         <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>

@@ -44,13 +44,13 @@ export default async function GruposPage() {
 
       {(myStats?.length ?? 0) > 0 && (
         <Card className="p-4">
-          <div className="text-sm text-zinc-400">Tu balance total acumulado</div>
+          <div className="text-sm text-neutral-500">Tu balance total acumulado</div>
           <div
             className={`mt-1 text-3xl font-bold tabular-nums ${balanceColor(totalNet)}`}
           >
             {formatSignedMoney(totalNet)}
           </div>
-          <div className="mt-1 text-xs text-zinc-500">
+          <div className="mt-1 text-xs text-neutral-400">
             Sumando todas las partidas cerradas en las que has jugado.
           </div>
         </Card>
@@ -71,16 +71,16 @@ export default async function GruposPage() {
             return (
               <li key={g.id}>
                 <Link href={`/grupos/${g.id}`}>
-                  <Card className="p-4 transition-colors hover:bg-white/[0.07]">
+                  <Card className="p-4 transition-colors hover:bg-neutral-50">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-lg font-semibold text-white">
+                        <p className="truncate text-lg font-semibold text-neutral-900">
                           {g.name}
                         </p>
-                        <p className="mt-0.5 text-sm text-zinc-400">
+                        <p className="mt-0.5 text-sm text-neutral-500">
                           {gc.total} partida{gc.total === 1 ? "" : "s"}
                           {gc.open > 0 && (
-                            <span className="text-emerald-400">
+                            <span className="text-emerald-600">
                               {" "}
                               · {gc.open} abierta{gc.open === 1 ? "" : "s"}
                             </span>
@@ -93,7 +93,7 @@ export default async function GruposPage() {
                         >
                           {formatSignedMoney(net, g.currency)}
                         </div>
-                        <div className="text-xs text-zinc-500">tu balance</div>
+                        <div className="text-xs text-neutral-400">tu balance</div>
                       </div>
                     </div>
                   </Card>

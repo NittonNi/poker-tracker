@@ -25,13 +25,13 @@ export default async function AppLayout({
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col">
-      <header className="safe-top sticky top-0 z-30 border-b border-white/10 bg-felt-950/80 backdrop-blur-md">
+      <header className="safe-top sticky top-0 z-30 border-b border-neutral-200 bg-white/80 backdrop-blur-md">
         <div className="flex items-center justify-between px-4 py-3">
           <Link href="/grupos" className="flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-700 text-lg text-felt-950">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-neutral-900 text-lg text-white">
               ♠
             </span>
-            <span className="font-bold tracking-tight text-white">Poker</span>
+            <span className="font-bold tracking-tight text-neutral-900">Poker</span>
           </Link>
           <AccountMenu
             name={name}

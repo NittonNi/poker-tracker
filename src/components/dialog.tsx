@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { cn } from "@/components/ui";
 
 export function Modal({
@@ -34,18 +35,18 @@ export function Modal({
       aria-modal="true"
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="animate-overlay absolute inset-0 bg-neutral-950/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="safe-bottom relative z-10 w-full max-w-md animate-in rounded-t-3xl border border-white/10 bg-felt-900 p-5 shadow-2xl sm:rounded-3xl">
+      <div className="safe-bottom animate-in relative z-10 w-full max-w-md rounded-t-3xl border border-neutral-200 bg-white p-5 shadow-2xl sm:rounded-3xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-white/10 hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-900"
             aria-label="Cerrar"
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
         {children}

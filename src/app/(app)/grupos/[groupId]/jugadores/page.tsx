@@ -35,7 +35,7 @@ export default async function JugadoresPage({
       <div>
         <Link
           href={`/grupos/${groupId}`}
-          className="mb-2 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
         >
           ← {group.name}
         </Link>
@@ -56,7 +56,7 @@ export default async function JugadoresPage({
 
       {inactive.length > 0 && (
         <div className="space-y-2">
-          <h2 className="pt-2 text-sm font-semibold text-zinc-500">
+          <h2 className="pt-2 text-sm font-semibold text-neutral-400">
             Inactivos
           </h2>
           <ul className="space-y-2">
@@ -68,7 +68,7 @@ export default async function JugadoresPage({
       )}
 
       {!players?.length && (
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-neutral-500">
           Todavía no hay jugadores. Añade el primero con el botón de arriba.
         </p>
       )}

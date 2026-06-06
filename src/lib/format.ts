@@ -38,9 +38,9 @@ export function formatDate(iso: string | null | undefined): string {
 
 /** Color de tailwind según el signo de un balance. */
 export function balanceColor(n: number): string {
-  if (n > 0.001) return "text-emerald-400";
-  if (n < -0.001) return "text-rose-400";
-  return "text-zinc-400";
+  if (n > 0.001) return "text-emerald-600";
+  if (n < -0.001) return "text-red-600";
+  return "text-neutral-400";
 }
 
 /** Iniciales para el avatar a partir de un nombre. */

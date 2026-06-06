@@ -60,7 +60,7 @@ export default async function PartidaPage({
       <div>
         <Link
           href={`/grupos/${game.group_id}`}
-          className="mb-2 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
         >
           ← {group?.name ?? "Grupo"}
         </Link>

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Check } from "lucide-react";
 import { ModalButton } from "@/components/dialog";
 import { Avatar, buttonClass, inputClass, labelClass } from "@/components/ui";
 import { createGame } from "@/app/actions/games";
@@ -99,7 +100,7 @@ function Form({
   if (players.length === 0) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-zinc-400">
+        <p className="text-sm text-neutral-500">
           Necesitas al menos un jugador activo en el grupo para crear una
           partida.
         </p>
@@ -170,20 +171,20 @@ function Form({
                 onClick={() => toggle(p.id)}
                 className={`flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-colors ${
                   on
-                    ? "border-emerald-500/50 bg-emerald-500/10"
-                    : "border-white/10 bg-white/[0.03]"
+                    ? "border-neutral-900 bg-neutral-50"
+                    : "border-neutral-200 bg-white"
                 }`}
               >
                 <Avatar name={p.display_name} src={p.avatar_url} size={32} />
-                <span className="flex-1 font-medium text-white">
+                <span className="flex-1 font-medium text-neutral-900">
                   {p.display_name}
                 </span>
                 <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-md text-xs ${
-                    on ? "bg-emerald-500 text-felt-950" : "bg-white/10"
+                  className={`flex h-5 w-5 items-center justify-center rounded-md ${
+                    on ? "bg-neutral-900 text-white" : "border border-neutral-300 bg-white"
                   }`}
                 >
-                  {on ? "✓" : ""}
+                  {on && <Check size={13} strokeWidth={3} />}
                 </span>
               </button>
             );
@@ -191,7 +192,7 @@ function Form({
         </div>
       </div>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2 pt-1">
         <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>

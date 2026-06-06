@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Settings } from "lucide-react";
 import { ModalButton } from "@/components/dialog";
 import { buttonClass, inputClass, labelClass } from "@/components/ui";
 import { deleteGame, updateGame } from "@/app/actions/games";
@@ -18,9 +19,9 @@ type Game = {
 export function GameSettings({ game }: { game: Game }) {
   return (
     <ModalButton
-      label={<span className="text-xl">⚙️</span>}
+      label={<Settings size={18} />}
       title="Ajustes de la partida"
-      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/10"
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
     >
       {(close) => <Form close={close} game={game} />}
     </ModalButton>
@@ -87,12 +88,12 @@ function Form({ close, game }: { close: () => void; game: Game }) {
           />
         </div>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-neutral-400">
         Cambiar el cambio de fichas recalcula los balances con los movimientos ya
         registrados.
       </p>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2">
         <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>
@@ -107,17 +108,17 @@ function Form({ close, game }: { close: () => void; game: Game }) {
         </button>
       </div>
 
-      <div className="border-t border-white/10 pt-4">
+      <div className="border-t border-neutral-200 pt-4">
         {!confirmDelete ? (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="text-sm text-rose-400 hover:text-rose-300"
+            className="text-sm text-red-600 hover:text-red-700"
           >
             Eliminar partida
           </button>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm text-zinc-300">
+            <p className="text-sm text-neutral-600">
               ¿Seguro? Se borrarán todos sus movimientos y la liquidación.
             </p>
             <div className="flex gap-2">

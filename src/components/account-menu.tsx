@@ -26,15 +26,15 @@ export function AccountMenu({
             className="fixed inset-0 z-10"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-white/10 bg-felt-900 shadow-2xl">
-            <div className="border-b border-white/10 px-4 py-3">
-              <p className="truncate text-sm font-semibold text-white">{name}</p>
-              <p className="truncate text-xs text-zinc-400">{email}</p>
+          <div className="absolute right-0 z-20 mt-2 w-56 overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-xl">
+            <div className="border-b border-neutral-100 px-4 py-3">
+              <p className="truncate text-sm font-semibold text-neutral-900">{name}</p>
+              <p className="truncate text-xs text-neutral-500">{email}</p>
             </div>
             <form action={signOut}>
               <button
                 type="submit"
-                className="w-full px-4 py-3 text-left text-sm text-rose-300 hover:bg-white/5"
+                className="w-full px-4 py-3 text-left text-sm text-red-600 hover:bg-neutral-50"
               >
                 Cerrar sesión
               </button>

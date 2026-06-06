@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { MoreHorizontal } from "lucide-react";
 import { Avatar, Badge, Card, buttonClass, inputClass } from "@/components/ui";
 import {
   deletePlayer,
@@ -55,7 +56,7 @@ export function PlayerRow({
           ) : (
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
-                <span className="truncate font-medium text-white">
+                <span className="truncate font-medium text-neutral-900">
                   {player.display_name}
                 </span>
                 {player.user_id && <Badge color="emerald">Cuenta</Badge>}
@@ -104,11 +105,11 @@ export function PlayerRow({
           )}
         </div>
 
-        {error && <p className="mt-2 text-sm text-rose-400">{error}</p>}
+        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
 
         {confirmDelete && (
-          <div className="mt-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3">
-            <p className="text-sm text-zinc-200">
+          <div className="mt-3 rounded-xl border border-red-200 bg-red-50 p-3">
+            <p className="text-sm text-neutral-700">
               ¿Borrar a {player.display_name}? Se eliminará también su historial.
               Si solo deja de jugar, mejor márcalo como inactivo.
             </p>
@@ -152,22 +153,22 @@ function Menu({
     <div className="relative">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-zinc-400 hover:bg-white/10"
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
         aria-label="Opciones"
         disabled={pending}
       >
-        ⋯
+        <MoreHorizontal size={18} />
       </button>
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-white/10 bg-felt-900 shadow-2xl">
+          <div className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-xl">
             <button
               onClick={() => {
                 setOpen(false);
                 onRename();
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-zinc-200 hover:bg-white/5"
+              className="block w-full px-4 py-2.5 text-left text-sm text-neutral-700 hover:bg-neutral-50"
             >
               Renombrar
             </button>
@@ -176,7 +177,7 @@ function Menu({
                 setOpen(false);
                 onToggleActive();
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-zinc-200 hover:bg-white/5"
+              className="block w-full px-4 py-2.5 text-left text-sm text-neutral-700 hover:bg-neutral-50"
             >
               {player.is_active ? "Marcar inactivo" : "Reactivar"}
             </button>
@@ -185,7 +186,7 @@ function Menu({
                 setOpen(false);
                 onDelete();
               }}
-              className="block w-full px-4 py-2.5 text-left text-sm text-rose-300 hover:bg-white/5"
+              className="block w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-neutral-50"
             >
               Borrar
             </button>

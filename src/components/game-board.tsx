@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Plus, Check, ArrowLeftRight, Coins, Trash2 } from "lucide-react";
 import {
   Avatar,
   Badge,
@@ -177,7 +178,7 @@ export function GameBoard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h1 className="truncate text-2xl font-bold text-white">
+            <h1 className="truncate text-2xl font-bold text-neutral-900">
               {game.name}
             </h1>
             {isOpen ? (
@@ -186,7 +187,7 @@ export function GameBoard({
               <Badge color="zinc">Cerrada</Badge>
             )}
           </div>
-          <p className="mt-0.5 text-sm text-zinc-400">
+          <p className="mt-0.5 text-sm text-neutral-500">
             {formatDate(game.playedOn)} · {formatPoints(rate)} fichas/{currency}
           </p>
         </div>
@@ -202,7 +203,7 @@ export function GameBoard({
           value={formatPoints(chipsCounted)}
           valueClass={
             allCounted && Math.abs(chipsInPlay - chipsCounted) > 0.5
-              ? "text-amber-400"
+              ? "text-amber-600"
               : undefined
           }
         />
@@ -217,10 +218,10 @@ export function GameBoard({
               <div className="flex items-center gap-3">
                 <Avatar name={p.name} src={p.avatarUrl} size={40} />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold text-white">
+                  <div className="truncate font-semibold text-neutral-900">
                     {p.name}
                   </div>
-                  <div className="text-xs text-zinc-400">
+                  <div className="text-xs text-neutral-500">
                     Invertido {formatMoney(b?.netMoneyIn ?? 0, currency)} ·{" "}
                     {formatPoints(b?.chipsLedger ?? 0)} fichas
                   </div>
@@ -233,13 +234,13 @@ export function GameBoard({
                       ? "—"
                       : formatSignedMoney(b?.balance ?? 0, currency)}
                   </div>
-                  <div className="text-[11px] text-zinc-500">balance</div>
+                  <div className="text-[11px] text-neutral-400">balance</div>
                 </div>
               </div>
 
               {isOpen && (
                 <div className="mt-3 flex items-center gap-2">
-                  <label className="text-xs text-zinc-400">Fichas finales</label>
+                  <label className="text-xs text-neutral-500">Fichas finales</label>
                   <input
                     className={`${inputClass} h-9 flex-1`}
                     type="number"
@@ -300,38 +301,38 @@ export function GameBoard({
         />
       )}
       {!isOpen && settlements.length === 0 && (
-        <Card className="p-4 text-center text-sm text-zinc-400">
+        <Card className="p-4 text-center text-sm text-neutral-500">
           Todo cuadrado: nadie debe nada 🎉
         </Card>
       )}
 
       {error && (
-        <p className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300">
+        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {error}
         </p>
       )}
 
       {/* Barra inferior fija */}
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-felt-950/90 backdrop-blur-md">
+      <div className="safe-bottom fixed inset-x-0 bottom-0 z-20 border-t border-neutral-200 bg-white/90 backdrop-blur-md">
         <div className="mx-auto w-full max-w-lg px-4 py-3">
           {isOpen ? (
             <div className="flex items-center gap-3">
               <div className="flex-1 text-sm">
                 {!allCounted ? (
-                  <span className="text-zinc-400">
+                  <span className="text-neutral-500">
                     Cuenta las fichas finales de todos para liquidar.
                   </span>
                 ) : Math.abs(mismatch) > 0.05 ? (
-                  <span className="text-amber-400">
+                  <span className="text-amber-600">
                     Descuadre de {formatMoney(Math.abs(mismatch), currency)}.
                     Revisa los recuentos.
                   </span>
                 ) : preview.length === 0 ? (
-                  <span className="text-emerald-400">
+                  <span className="text-emerald-600">
                     Todo cuadra · nadie debe nada
                   </span>
                 ) : (
-                  <span className="text-emerald-400">
+                  <span className="text-emerald-600">
                     Todo cuadra · {preview.length} pago
                     {preview.length === 1 ? "" : "s"}
                   </span>
@@ -347,7 +348,7 @@ export function GameBoard({
             </div>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="flex-1 text-sm text-zinc-400">
+              <span className="flex-1 text-sm text-neutral-500">
                 Partida cerrada
               </span>
               <button
@@ -375,9 +376,9 @@ function MiniStat({
   valueClass?: string;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
-      <div className="text-[11px] text-zinc-400">{label}</div>
-      <div className={`mt-0.5 text-sm font-bold tabular-nums ${valueClass ?? "text-white"}`}>
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2">
+      <div className="text-[11px] text-neutral-500">{label}</div>
+      <div className={`mt-0.5 text-sm font-bold tabular-nums ${valueClass ?? "text-neutral-900"}`}>
         {value}
       </div>
     </div>
@@ -434,12 +435,12 @@ function BuyInButton({
         }}
         className={
           compact
-            ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-500/90 text-lg font-bold text-felt-950"
+            ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-900 text-white transition-colors hover:bg-neutral-800"
             : buttonClass("primary")
         }
         aria-label="Buy-in"
       >
-        {compact ? "+" : "Buy-in / recompra"}
+        {compact ? <Plus size={18} /> : "Buy-in / recompra"}
       </button>
       <Modal
         open={open}
@@ -465,7 +466,7 @@ function BuyInButton({
             </div>
           )}
           {player && (
-            <p className="text-sm text-zinc-300">
+            <p className="text-sm text-neutral-600">
               Jugador: <span className="font-semibold">{player.name}</span>
             </p>
           )}
@@ -480,11 +481,11 @@ function BuyInButton({
               onChange={(e) => setMoney(e.target.value)}
               autoFocus
             />
-            <p className="mt-1.5 text-xs text-zinc-500">
+            <p className="mt-1.5 text-xs text-neutral-400">
               = {formatPoints(points)} fichas
             </p>
           </div>
-          {error && <p className="text-sm text-rose-400">{error}</p>}
+          {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex gap-2">
             <button
               onClick={() => setOpen(false)}
@@ -582,7 +583,7 @@ function TransferForm({
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-zinc-400">
+      <p className="text-sm text-neutral-500">
         El <b>comprador</b> paga dinero al <b>vendedor</b> y recibe sus fichas.
       </p>
       <div className="grid grid-cols-2 gap-3">
@@ -627,11 +628,11 @@ function TransferForm({
           value={money}
           onChange={(e) => setMoney(e.target.value)}
         />
-        <p className="mt-1.5 text-xs text-zinc-500">
+        <p className="mt-1.5 text-xs text-neutral-400">
           = {formatPoints(points)} fichas que pasan del vendedor al comprador
         </p>
       </div>
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
       <div className="flex gap-2">
         <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>
           Cancelar
@@ -667,7 +668,7 @@ function Movements({
 
   if (transactions.length === 0) {
     return (
-      <Card className="p-4 text-center text-sm text-zinc-400">
+      <Card className="p-4 text-center text-sm text-neutral-500">
         Sin movimientos todavía. Registra el primer buy-in.
       </Card>
     );
@@ -682,22 +683,32 @@ function Movements({
 
   return (
     <div>
-      <h2 className="mb-2 text-sm font-semibold text-zinc-400">
+      <h2 className="mb-2 text-sm font-semibold text-neutral-500">
         Movimientos ({transactions.length})
       </h2>
-      <Card className="divide-y divide-white/5">
+      <Card className="divide-y divide-neutral-100">
         {transactions.map((t) => (
           <div key={t.id} className="flex items-center gap-3 px-3 py-2.5">
-            <span className="text-lg">
-              {t.type === "transfer" ? "🔁" : "💰"}
+            <span
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                t.type === "transfer"
+                  ? "bg-neutral-100 text-neutral-600"
+                  : "bg-emerald-50 text-emerald-700"
+              }`}
+            >
+              {t.type === "transfer" ? (
+                <ArrowLeftRight size={15} />
+              ) : (
+                <Coins size={15} />
+              )}
             </span>
             <div className="min-w-0 flex-1">
-              <div className="truncate text-sm text-white">
+              <div className="truncate text-sm text-neutral-900">
                 {t.type === "transfer"
                   ? `${nameById[t.playerId] ?? "?"} compró a ${nameById[t.counterpartyId ?? ""] ?? "?"}`
                   : `${nameById[t.playerId] ?? "?"} · buy-in`}
               </div>
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-neutral-400">
                 {formatMoney(t.money, currency)} · {formatPoints(t.points)} fichas
               </div>
             </div>
@@ -705,10 +716,10 @@ function Movements({
               <button
                 onClick={() => del(t.id)}
                 disabled={pending}
-                className="text-zinc-500 hover:text-rose-400"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"
                 aria-label="Borrar movimiento"
               >
-                ✕
+                <Trash2 size={16} />
               </button>
             )}
           </div>
@@ -742,42 +753,44 @@ function SettlementList({
 
   return (
     <div>
-      <h2 className="mb-2 text-sm font-semibold text-zinc-400">
+      <h2 className="mb-2 text-sm font-semibold text-neutral-500">
         Quién paga a quién
       </h2>
-      <Card className="divide-y divide-white/5">
+      <Card className="divide-y divide-neutral-100">
         {settlements.map((s) => (
           <button
             key={s.id}
             onClick={() => toggle(s)}
             disabled={pending}
-            className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-white/[0.03]"
+            className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-neutral-50"
           >
             <span
-              className={`flex h-6 w-6 items-center justify-center rounded-md text-xs ${
-                s.isPaid ? "bg-emerald-500 text-felt-950" : "bg-white/10"
+              className={`flex h-6 w-6 items-center justify-center rounded-md ${
+                s.isPaid
+                  ? "bg-emerald-600 text-white"
+                  : "border border-neutral-300 bg-white"
               }`}
             >
-              {s.isPaid ? "✓" : ""}
+              {s.isPaid && <Check size={14} strokeWidth={3} />}
             </span>
             <div className="flex-1 text-sm">
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-neutral-900">
                 {nameById[s.from] ?? "?"}
               </span>{" "}
-              <span className="text-zinc-400">paga a</span>{" "}
-              <span className="font-semibold text-white">
+              <span className="text-neutral-500">paga a</span>{" "}
+              <span className="font-semibold text-neutral-900">
                 {nameById[s.to] ?? "?"}
               </span>
             </div>
             <span
-              className={`font-bold tabular-nums ${s.isPaid ? "text-zinc-500 line-through" : "text-emerald-400"}`}
+              className={`font-bold tabular-nums ${s.isPaid ? "text-neutral-400 line-through" : "text-emerald-600"}`}
             >
               {formatMoney(s.amount, currency)}
             </span>
           </button>
         ))}
       </Card>
-      <p className="mt-2 text-xs text-zinc-500">
+      <p className="mt-2 text-xs text-neutral-400">
         Toca cada línea para marcarla como pagada.
       </p>
     </div>

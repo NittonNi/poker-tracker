@@ -76,12 +76,12 @@ function Form({ close }: { close: () => void }) {
           />
         </div>
       </div>
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-neutral-400">
         Ej: con 100 fichas por {currency || "€"}, un buy-in de 10 {currency || "€"}{" "}
         son 1.000 fichas. Lo puedes cambiar en cada partida.
       </p>
 
-      {error && <p className="text-sm text-rose-400">{error}</p>}
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       <div className="flex gap-2 pt-1">
         <button

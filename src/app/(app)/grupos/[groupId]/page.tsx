@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Users, BarChart3, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
 import { formatDate } from "@/lib/format";
@@ -47,7 +48,7 @@ export default async function GroupPage({
       <div>
         <Link
           href="/grupos"
-          className="mb-2 inline-block text-sm text-zinc-400 hover:text-white"
+          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
         >
           ← Grupos
         </Link>
@@ -60,29 +61,29 @@ export default async function GroupPage({
 
       <div className="grid grid-cols-2 gap-3">
         <Link href={`/grupos/${groupId}/jugadores`}>
-          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-white/[0.07]">
-            <span className="text-2xl">👥</span>
+          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-neutral-50">
+            <Users className="size-6 text-neutral-700" strokeWidth={1.75} />
             <div>
-              <div className="font-semibold text-white">Jugadores</div>
-              <div className="text-xs text-zinc-400">
+              <div className="font-semibold text-neutral-900">Jugadores</div>
+              <div className="text-xs text-neutral-500">
                 {activePlayers.length} activos
               </div>
             </div>
           </Card>
         </Link>
         <Link href={`/grupos/${groupId}/estadisticas`}>
-          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-white/[0.07]">
-            <span className="text-2xl">📊</span>
+          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-neutral-50">
+            <BarChart3 className="size-6 text-neutral-700" strokeWidth={1.75} />
             <div>
-              <div className="font-semibold text-white">Estadísticas</div>
-              <div className="text-xs text-zinc-400">Ranking y totales</div>
+              <div className="font-semibold text-neutral-900">Estadísticas</div>
+              <div className="text-xs text-neutral-500">Ranking y totales</div>
             </div>
           </Card>
         </Link>
       </div>
 
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">Partidas</h2>
+        <h2 className="text-lg font-bold text-neutral-900">Partidas</h2>
         <NewGameForm
           groupId={groupId}
           defaultRate={Number(group.default_rate)}
@@ -106,10 +107,10 @@ export default async function GroupPage({
           {games.map((game) => (
             <li key={game.id}>
               <Link href={`/partidas/${game.id}`}>
-                <Card className="flex items-center justify-between p-4 transition-colors hover:bg-white/[0.07]">
+                <Card className="flex items-center justify-between p-4 transition-colors hover:bg-neutral-50">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className="truncate font-semibold text-white">
+                      <p className="truncate font-semibold text-neutral-900">
                         {game.name}
                       </p>
                       {game.status === "open" ? (
@@ -118,12 +119,12 @@ export default async function GroupPage({
                         <Badge color="zinc">Cerrada</Badge>
                       )}
                     </div>
-                    <p className="mt-0.5 text-sm text-zinc-400">
+                    <p className="mt-0.5 text-sm text-neutral-500">
                       {formatDate(game.played_on)} ·{" "}
                       {countByGame.get(game.id) ?? 0} jugadores
                     </p>
                   </div>
-                  <span className="text-zinc-500">›</span>
+                  <ChevronRight className="size-5 shrink-0 text-neutral-400" />
                 </Card>
               </Link>
             </li>
