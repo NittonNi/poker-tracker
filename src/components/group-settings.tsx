@@ -14,7 +14,7 @@ import {
 type Group = {
   id: string;
   name: string;
-  currency: string;
+  default_buyin: number;
   default_rate: number;
 };
 
@@ -36,8 +36,10 @@ function Form({ close, group }: { close: () => void; group: Group }) {
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [name, setName] = useState(group.name);
-  const [currency, setCurrency] = useState(group.currency);
-  const [rate, setRate] = useState(String(group.default_rate));
+  const [buyin, setBuyin] = useState(String(group.default_buyin));
+  const [chips, setChips] = useState(
+    String(Math.round(group.default_buyin * group.default_rate)),
+  );
 
   function save() {
     setError(null);
@@ -45,8 +47,8 @@ function Form({ close, group }: { close: () => void; group: Group }) {
       const r1 = await renameGroup(group.id, name);
       if (!r1.ok) return setError(r1.error);
       const r2 = await updateGroupSettings(group.id, {
-        currency,
-        default_rate: Number(rate),
+        buyin: Number(buyin),
+        buyinChips: Number(chips),
       });
       if (!r2.ok) return setError(r2.error);
       router.refresh();
@@ -72,24 +74,31 @@ function Form({ close, group }: { close: () => void; group: Group }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>Moneda</label>
-          <input
-            className={inputClass}
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            maxLength={3}
-          />
-        </div>
-        <div>
-          <label className={labelClass}>Fichas por unidad</label>
+          <label className={labelClass}>Buy-in (€)</label>
           <input
             className={inputClass}
             type="number"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            inputMode="decimal"
+            min={0}
+            value={buyin}
+            onChange={(e) => setBuyin(e.target.value)}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Fichas por buy-in</label>
+          <input
+            className={inputClass}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={chips}
+            onChange={(e) => setChips(e.target.value)}
           />
         </div>
       </div>
+      <p className="-mt-1 text-xs text-neutral-400">
+        1 buy-in = {buyin || "?"} € = {chips || "?"} fichas.
+      </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 

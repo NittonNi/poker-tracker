@@ -10,6 +10,7 @@ import {
   Coins,
   Trash2,
   SlidersHorizontal,
+  UserPlus,
 } from "lucide-react";
 import {
   Avatar,
@@ -45,6 +46,7 @@ import {
 import {
   closeGame,
   reopenGame,
+  addPlayerToGame,
   setFinalChips as saveFinalChips,
 } from "@/app/actions/games";
 import { setSettlementPaid } from "@/app/actions/settlements";
@@ -57,6 +59,7 @@ type Game = {
   playedOn: string;
   status: "open" | "closed";
   rate: number;
+  buyin: number;
   currency: string;
 };
 type PlayerInfo = {
@@ -83,14 +86,18 @@ type Settlement = {
   isPaid: boolean;
 };
 
+type RosterPlayer = { playerId: string; name: string; avatarUrl: string | null };
+
 export function GameBoard({
   game,
   players,
+  roster,
   transactions,
   settlements,
 }: {
   game: Game;
   players: PlayerInfo[];
+  roster: RosterPlayer[];
   transactions: Tx[];
   settlements: Settlement[];
 }) {
@@ -155,6 +162,7 @@ export function GameBoard({
   );
 
   const totalMoney = balances.reduce((s, b) => s + b.buyinMoney, 0);
+  const buyInsCount = transactions.filter((t) => t.type === "buy_in").length;
 
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -203,26 +211,46 @@ export function GameBoard({
             )}
           </div>
           <p className="mt-0.5 text-sm text-neutral-500">
-            {formatDate(game.playedOn)} · {formatPoints(rate)} fichas/{currency}
+            {formatDate(game.playedOn)} · Buy-in {formatMoney(game.buyin, currency)} ={" "}
+            {formatPoints(Math.round(game.buyin * rate))} fichas
           </p>
         </div>
         <GameSettings game={game} />
       </div>
 
-      {/* Resumen */}
-      <div className="grid grid-cols-3 gap-2">
-        <MiniStat label="En la mesa" value={formatMoney(totalMoney, currency)} />
-        <MiniStat label="Fichas en juego" value={formatPoints(chipsInPlay)} />
-        <MiniStat
-          label="Fichas contadas"
-          value={formatPoints(chipsCounted)}
-          valueClass={
-            allCounted && Math.abs(chipsInPlay - chipsCounted) > 0.5
-              ? "text-amber-600"
-              : undefined
-          }
-        />
-      </div>
+      {/* Resumen / bote */}
+      <Card className="p-4">
+        <div className="flex items-end justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">
+              Bote en la mesa
+            </div>
+            <div className="mt-0.5 text-3xl font-bold tabular-nums text-neutral-900">
+              {formatMoney(totalMoney, currency)}
+            </div>
+          </div>
+          <div className="shrink-0 text-right text-sm text-neutral-500">
+            <div>
+              {players.length} jugador{players.length === 1 ? "" : "es"}
+            </div>
+            <div>
+              {buyInsCount} buy-in{buyInsCount === 1 ? "" : "s"}
+            </div>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <MiniStat label="Fichas en juego" value={formatPoints(chipsInPlay)} />
+          <MiniStat
+            label="Fichas contadas"
+            value={formatPoints(chipsCounted)}
+            valueClass={
+              allCounted && Math.abs(chipsInPlay - chipsCounted) > 0.5
+                ? "text-amber-600"
+                : undefined
+            }
+          />
+        </div>
+      </Card>
 
       {/* Jugadores */}
       <div className="space-y-2">
@@ -270,6 +298,7 @@ export function GameBoard({
                     gameId={game.id}
                     player={p}
                     rate={rate}
+                    buyin={game.buyin}
                     currency={currency}
                     compact
                   />
@@ -280,6 +309,11 @@ export function GameBoard({
         })}
       </div>
 
+      {/* Añadir jugador a la mesa (si entra alguien a mitad) */}
+      {isOpen && roster.length > 0 && (
+        <AddToTableButton gameId={game.id} roster={roster} />
+      )}
+
       {/* Acciones de recompra */}
       {isOpen && (
         <div className="space-y-2">
@@ -288,6 +322,7 @@ export function GameBoard({
               gameId={game.id}
               players={players}
               rate={rate}
+              buyin={game.buyin}
               currency={currency}
             />
             <TransferButton
@@ -415,6 +450,7 @@ function BuyInButton({
   player,
   players,
   rate,
+  buyin,
   currency,
   compact,
 }: {
@@ -422,6 +458,7 @@ function BuyInButton({
   player?: PlayerInfo;
   players?: PlayerInfo[];
   rate: number;
+  buyin: number;
   currency: string;
   compact?: boolean;
 }) {
@@ -430,7 +467,7 @@ function BuyInButton({
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [playerId, setPlayerId] = useState(player?.playerId ?? "");
-  const [money, setMoney] = useState("");
+  const [money, setMoney] = useState(String(buyin));
 
   const list = players ?? (player ? [player] : []);
   const points = money ? moneyToPoints(Number(money), rate) : 0;
@@ -441,11 +478,35 @@ function BuyInButton({
     startTransition(async () => {
       const res = await addBuyIn({ gameId, playerId, money: Number(money) });
       if (res.ok) {
-        setMoney("");
         setOpen(false);
         router.refresh();
       } else setError(res.error);
     });
+  }
+
+  // Botón compacto por jugador: un toque = buy-in estándar (sin modal).
+  if (compact && player) {
+    return (
+      <button
+        onClick={() =>
+          startTransition(async () => {
+            const res = await addBuyIn({
+              gameId,
+              playerId: player.playerId,
+              money: buyin,
+            });
+            if (res.ok) router.refresh();
+          })
+        }
+        disabled={pending}
+        className="flex h-9 shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-2.5 text-sm font-medium text-white transition-colors hover:bg-neutral-800 disabled:opacity-50"
+        aria-label={`Buy-in de ${formatMoney(buyin, currency)}`}
+        title={`Buy-in de ${formatMoney(buyin, currency)}`}
+      >
+        <Plus size={16} />
+        {formatMoney(buyin, currency)}
+      </button>
+    );
   }
 
   return (
@@ -453,18 +514,14 @@ function BuyInButton({
       <button
         onClick={() => {
           setPlayerId(player?.playerId ?? "");
-          setMoney("");
+          setMoney(String(buyin));
           setError(null);
           setOpen(true);
         }}
-        className={
-          compact
-            ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-neutral-900 text-white transition-colors hover:bg-neutral-800"
-            : buttonClass("primary")
-        }
+        className={buttonClass("primary")}
         aria-label="Buy-in"
       >
-        {compact ? <Plus size={18} /> : "Buy-in / recompra"}
+        Buy-in / recompra
       </button>
       <Modal
         open={open}
@@ -500,13 +557,14 @@ function BuyInButton({
               className={inputClass}
               type="number"
               inputMode="decimal"
-              placeholder="10"
+              min={0}
+              placeholder={String(buyin)}
               value={money}
               onChange={(e) => setMoney(e.target.value)}
               autoFocus
             />
             <p className="mt-1.5 text-xs text-neutral-400">
-              = {formatPoints(points)} fichas
+              = {formatPoints(points)} fichas · estándar {formatMoney(buyin, currency)}
             </p>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -669,6 +727,88 @@ function TransferForm({
           {pending ? "Guardando…" : "Registrar"}
         </button>
       </div>
+    </div>
+  );
+}
+
+/* --------------------- Añadir jugador a la mesa --------------------- */
+function AddToTableButton({
+  gameId,
+  roster,
+}: {
+  gameId: string;
+  roster: RosterPlayer[];
+}) {
+  const router = useRouter();
+  return (
+    <ModalButton
+      label={
+        <>
+          <UserPlus size={16} />
+          Añadir jugador a la mesa
+        </>
+      }
+      title="Añadir a la mesa"
+      className={`${buttonClass("secondary", "sm")} w-full`}
+    >
+      {(close) => (
+        <AddToTableList
+          close={close}
+          gameId={gameId}
+          roster={roster}
+          onDone={() => router.refresh()}
+        />
+      )}
+    </ModalButton>
+  );
+}
+
+function AddToTableList({
+  close,
+  gameId,
+  roster,
+  onDone,
+}: {
+  close: () => void;
+  gameId: string;
+  roster: RosterPlayer[];
+  onDone: () => void;
+}) {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function add(playerId: string) {
+    setError(null);
+    startTransition(async () => {
+      const res = await addPlayerToGame(gameId, playerId);
+      if (res.ok) {
+        close();
+        onDone();
+      } else setError(res.error);
+    });
+  }
+
+  return (
+    <div className="space-y-3">
+      <p className="text-sm text-neutral-500">
+        Elige a quién sentar en la mesa. Entra sin fichas; hazle un buy-in
+        después.
+      </p>
+      <div className="max-h-64 space-y-1.5 overflow-y-auto no-scrollbar">
+        {roster.map((p) => (
+          <button
+            key={p.playerId}
+            onClick={() => add(p.playerId)}
+            disabled={pending}
+            className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2 text-left transition-colors hover:bg-neutral-50 disabled:opacity-50"
+          >
+            <Avatar name={p.name} src={p.avatarUrl} size={32} />
+            <span className="flex-1 font-medium text-neutral-900">{p.name}</span>
+            <Plus size={16} className="text-neutral-400" />
+          </button>
+        ))}
+      </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }

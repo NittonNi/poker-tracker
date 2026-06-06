@@ -86,8 +86,8 @@ export default async function GroupPage({
         <h2 className="text-lg font-bold text-neutral-900">Partidas</h2>
         <NewGameForm
           groupId={groupId}
+          defaultBuyin={Number(group.default_buyin)}
           defaultRate={Number(group.default_rate)}
-          currency={group.currency}
           players={activePlayers}
         />
       </div>

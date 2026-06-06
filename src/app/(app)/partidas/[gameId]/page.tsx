@@ -32,7 +32,7 @@ export default async function PartidaPage({
       .eq("game_id", gameId),
     supabase
       .from("players")
-      .select("id, display_name, avatar_url")
+      .select("id, display_name, avatar_url, is_active")
       .eq("group_id", game.group_id),
     supabase
       .from("transactions")
@@ -55,6 +55,16 @@ export default async function PartidaPage({
     };
   });
 
+  // Jugadores del grupo (activos) que aún no están en la mesa.
+  const inGame = new Set((gps ?? []).map((g) => g.player_id));
+  const eligible = (roster ?? [])
+    .filter((p) => p.is_active && !inGame.has(p.id))
+    .map((p) => ({
+      playerId: p.id,
+      name: p.display_name,
+      avatarUrl: p.avatar_url ?? null,
+    }));
+
   return (
     <div className="space-y-4">
       <div>
@@ -73,9 +83,11 @@ export default async function PartidaPage({
           playedOn: game.played_on,
           status: game.status as "open" | "closed",
           rate: Number(game.rate),
+          buyin: Number(game.buyin),
           currency: game.currency,
         }}
         players={players}
+        roster={eligible}
         transactions={(txs ?? []).map((t) => ({
           id: t.id,
           type: t.type as "buy_in" | "transfer" | "adjustment",

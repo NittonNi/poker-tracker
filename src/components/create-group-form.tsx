@@ -23,16 +23,16 @@ function Form({ close }: { close: () => void }) {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [currency, setCurrency] = useState("€");
-  const [rate, setRate] = useState("100");
+  const [buyin, setBuyin] = useState("10");
+  const [chips, setChips] = useState("1000");
 
   function submit() {
     setError(null);
     startTransition(async () => {
       const res = await createGroup({
         name,
-        currency,
-        rate: Number(rate),
+        buyin: Number(buyin),
+        buyinChips: Number(chips),
       });
       if (res.ok) {
         router.refresh();
@@ -57,28 +57,31 @@ function Form({ close }: { close: () => void }) {
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>Moneda</label>
+          <label className={labelClass}>Buy-in (€)</label>
           <input
             className={inputClass}
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            maxLength={3}
+            type="number"
+            inputMode="decimal"
+            min={0}
+            value={buyin}
+            onChange={(e) => setBuyin(e.target.value)}
           />
         </div>
         <div>
-          <label className={labelClass}>Fichas por unidad</label>
+          <label className={labelClass}>Fichas por buy-in</label>
           <input
             className={inputClass}
             type="number"
             inputMode="numeric"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            min={0}
+            value={chips}
+            onChange={(e) => setChips(e.target.value)}
           />
         </div>
       </div>
       <p className="text-xs text-neutral-400">
-        Ej: con 100 fichas por {currency || "€"}, un buy-in de 10 {currency || "€"}{" "}
-        son 1.000 fichas. Lo puedes cambiar en cada partida.
+        Cada buy-in de {buyin || "?"} € = {chips || "?"} fichas. Es lo estándar
+        del grupo; lo puedes cambiar en cada partida.
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

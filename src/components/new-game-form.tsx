@@ -11,13 +11,13 @@ type Player = { id: string; display_name: string; avatar_url: string | null };
 
 export function NewGameForm({
   groupId,
+  defaultBuyin,
   defaultRate,
-  currency,
   players,
 }: {
   groupId: string;
+  defaultBuyin: number;
   defaultRate: number;
-  currency: string;
   players: Player[];
 }) {
   return (
@@ -30,8 +30,8 @@ export function NewGameForm({
         <Form
           close={close}
           groupId={groupId}
+          defaultBuyin={defaultBuyin}
           defaultRate={defaultRate}
-          currency={currency}
           players={players}
         />
       )}
@@ -46,14 +46,14 @@ function todayISO() {
 function Form({
   close,
   groupId,
+  defaultBuyin,
   defaultRate,
-  currency,
   players,
 }: {
   close: () => void;
   groupId: string;
+  defaultBuyin: number;
   defaultRate: number;
-  currency: string;
   players: Player[];
 }) {
   const router = useRouter();
@@ -61,8 +61,11 @@ function Form({
   const [error, setError] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [playedOn, setPlayedOn] = useState(todayISO());
-  const [rate, setRate] = useState(String(defaultRate));
-  const [buyIn, setBuyIn] = useState("");
+  const [buyin, setBuyin] = useState(String(defaultBuyin || 10));
+  const [chips, setChips] = useState(
+    String(Math.round((defaultBuyin || 10) * (defaultRate || 100))),
+  );
+  const [applyInitial, setApplyInitial] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(
     new Set(players.map((p) => p.id)),
   );
@@ -83,10 +86,10 @@ function Form({
         groupId,
         name: name || `Partida ${formatShort(playedOn)}`,
         playedOn,
-        rate: Number(rate),
-        currency,
+        buyin: Number(buyin),
+        buyinChips: Number(chips),
         playerIds: [...selected],
-        buyInMoney: buyIn ? Number(buyIn) : 0,
+        applyInitialBuyIn: applyInitial,
       });
       if (res.ok) {
         close();
@@ -122,40 +125,61 @@ function Form({
           onChange={(e) => setName(e.target.value)}
         />
       </div>
+      <div>
+        <label className={labelClass}>Fecha</label>
+        <input
+          className={inputClass}
+          type="date"
+          value={playedOn}
+          onChange={(e) => setPlayedOn(e.target.value)}
+        />
+      </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className={labelClass}>Fecha</label>
+          <label className={labelClass}>Buy-in (€)</label>
           <input
             className={inputClass}
-            type="date"
-            value={playedOn}
-            onChange={(e) => setPlayedOn(e.target.value)}
+            type="number"
+            inputMode="decimal"
+            min={0}
+            value={buyin}
+            onChange={(e) => setBuyin(e.target.value)}
           />
         </div>
         <div>
-          <label className={labelClass}>Fichas por {currency}</label>
+          <label className={labelClass}>Fichas por buy-in</label>
           <input
             className={inputClass}
             type="number"
             inputMode="numeric"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            min={0}
+            value={chips}
+            onChange={(e) => setChips(e.target.value)}
           />
         </div>
       </div>
-      <div>
-        <label className={labelClass}>
-          Buy-in inicial para todos (opcional)
-        </label>
-        <input
-          className={inputClass}
-          type="number"
-          inputMode="decimal"
-          placeholder={`Ej: 10 ${currency}`}
-          value={buyIn}
-          onChange={(e) => setBuyIn(e.target.value)}
-        />
-      </div>
+      <p className="-mt-1 text-xs text-neutral-400">
+        1 buy-in = {buyin || "?"} € = {chips || "?"} fichas.
+      </p>
+
+      <button
+        type="button"
+        onClick={() => setApplyInitial((v) => !v)}
+        className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-left"
+      >
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded-md ${
+            applyInitial
+              ? "bg-neutral-900 text-white"
+              : "border border-neutral-300 bg-white"
+          }`}
+        >
+          {applyInitial && <Check size={13} strokeWidth={3} />}
+        </span>
+        <span className="text-sm text-neutral-700">
+          Apuntar el buy-in inicial a todos al empezar
+        </span>
+      </button>
 
       <div>
         <label className={labelClass}>

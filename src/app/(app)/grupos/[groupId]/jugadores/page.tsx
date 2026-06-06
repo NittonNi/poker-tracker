@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui";
 import { AddPlayerForm } from "@/components/add-player-form";
+import { InviteButton } from "@/components/invite-button";
 import { PlayerRow } from "@/components/player-row";
 
 export default async function JugadoresPage({
@@ -15,7 +16,7 @@ export default async function JugadoresPage({
 
   const { data: group } = await supabase
     .from("groups")
-    .select("id, name")
+    .select("id, name, invite_code")
     .eq("id", groupId)
     .single();
   if (!group) notFound();
@@ -41,8 +42,13 @@ export default async function JugadoresPage({
         </Link>
         <PageHeader
           title="Jugadores"
-          subtitle="Añade gente nueva o marca quién ya no juega."
-          action={<AddPlayerForm groupId={groupId} />}
+          subtitle="Invita gente con cuenta o añade invitados sueltos."
+          action={
+            <div className="flex shrink-0 items-center gap-2">
+              <InviteButton groupId={groupId} inviteCode={group.invite_code} />
+              <AddPlayerForm groupId={groupId} />
+            </div>
+          }
         />
       </div>
 

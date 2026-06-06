@@ -14,18 +14,25 @@ export async function createGame(input: {
   groupId: string;
   name: string;
   playedOn: string;
-  rate: number;
-  currency: string;
+  /** buy-in estándar en € */
+  buyin: number;
+  /** fichas que se reciben por ese buy-in */
+  buyinChips: number;
   playerIds: string[];
-  buyInMoney?: number;
+  /** si true, registra un buy-in estándar a todos los jugadores al crear */
+  applyInitialBuyIn?: boolean;
 }): Promise<{ ok: true; gameId: string } | { ok: false; error: string }> {
   const { supabase, user } = await getAuthed();
 
   if (!input.playerIds?.length)
     return { ok: false, error: "Selecciona al menos un jugador" };
-  const rate = Number(input.rate);
-  if (!isFinite(rate) || rate <= 0)
-    return { ok: false, error: "El cambio de fichas debe ser mayor que 0" };
+  const buyin = Number(input.buyin);
+  const chips = Number(input.buyinChips);
+  if (!isFinite(buyin) || buyin <= 0)
+    return { ok: false, error: "El buy-in debe ser mayor que 0 €" };
+  if (!isFinite(chips) || chips <= 0)
+    return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+  const rate = chips / buyin; // fichas por €
 
   const { data: game, error } = await supabase
     .from("games")
@@ -34,7 +41,8 @@ export async function createGame(input: {
       name: input.name?.trim() || "Partida",
       played_on: input.playedOn,
       rate,
-      currency: input.currency || "€",
+      buyin,
+      currency: "€",
       created_by: user.id,
     })
     .select("id")
@@ -46,16 +54,15 @@ export async function createGame(input: {
   );
   if (gpError) return { ok: false, error: gpError.message };
 
-  // Buy-in inicial opcional para todos
-  const buyIn = Number(input.buyInMoney ?? 0);
-  if (buyIn > 0) {
+  // Buy-in inicial opcional: registra el buy-in estándar a todos.
+  if (input.applyInitialBuyIn) {
     const { error: txError } = await supabase.from("transactions").insert(
       input.playerIds.map((pid) => ({
         game_id: game.id,
         type: "buy_in",
         player_id: pid,
-        amount_money: buyIn,
-        amount_points: moneyToPoints(buyIn, rate),
+        amount_money: buyin,
+        amount_points: moneyToPoints(buyin, rate),
         created_by: user.id,
       })),
     );
@@ -124,14 +131,29 @@ export async function setFinalChips(
 
 export async function updateGame(
   gameId: string,
-  input: { name?: string; playedOn?: string; rate?: number; notes?: string },
+  input: {
+    name?: string;
+    playedOn?: string;
+    buyin?: number;
+    buyinChips?: number;
+    notes?: string;
+  },
 ): Promise<ActionResult> {
   const { supabase } = await getAuthed();
   const patch: TablesUpdate<"games"> = {};
   if (input.name !== undefined) patch.name = input.name.trim() || "Partida";
   if (input.playedOn !== undefined) patch.played_on = input.playedOn;
-  if (input.rate !== undefined) patch.rate = input.rate;
   if (input.notes !== undefined) patch.notes = input.notes;
+  if (input.buyin !== undefined && input.buyinChips !== undefined) {
+    const buyin = Number(input.buyin);
+    const chips = Number(input.buyinChips);
+    if (!isFinite(buyin) || buyin <= 0)
+      return { ok: false, error: "El buy-in debe ser mayor que 0 €" };
+    if (!isFinite(chips) || chips <= 0)
+      return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+    patch.buyin = buyin;
+    patch.rate = chips / buyin;
+  }
   const { error } = await supabase.from("games").update(patch).eq("id", gameId);
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/partidas/${gameId}`);

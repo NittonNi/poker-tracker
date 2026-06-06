@@ -14,6 +14,7 @@ type Game = {
   playedOn: string;
   status: "open" | "closed";
   rate: number;
+  buyin: number;
 };
 
 export function GameSettings({ game }: { game: Game }) {
@@ -35,7 +36,10 @@ function Form({ close, game }: { close: () => void; game: Game }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [name, setName] = useState(game.name);
   const [playedOn, setPlayedOn] = useState(game.playedOn);
-  const [rate, setRate] = useState(String(game.rate));
+  const [buyin, setBuyin] = useState(String(game.buyin));
+  const [chips, setChips] = useState(
+    String(Math.round(game.buyin * game.rate)),
+  );
 
   function save() {
     setError(null);
@@ -43,7 +47,8 @@ function Form({ close, game }: { close: () => void; game: Game }) {
       const res = await updateGame(game.id, {
         name,
         playedOn,
-        rate: Number(rate),
+        buyin: Number(buyin),
+        buyinChips: Number(chips),
       });
       if (!res.ok) return setError(res.error);
       router.refresh();
@@ -79,18 +84,31 @@ function Form({ close, game }: { close: () => void; game: Game }) {
           />
         </div>
         <div>
-          <label className={labelClass}>Fichas por unidad</label>
+          <label className={labelClass}>Buy-in (€)</label>
           <input
             className={inputClass}
             type="number"
-            value={rate}
-            onChange={(e) => setRate(e.target.value)}
+            inputMode="decimal"
+            min={0}
+            value={buyin}
+            onChange={(e) => setBuyin(e.target.value)}
           />
         </div>
       </div>
+      <div>
+        <label className={labelClass}>Fichas por buy-in</label>
+        <input
+          className={inputClass}
+          type="number"
+          inputMode="numeric"
+          min={0}
+          value={chips}
+          onChange={(e) => setChips(e.target.value)}
+        />
+      </div>
       <p className="text-xs text-neutral-400">
-        Cambiar el cambio de fichas recalcula los balances con los movimientos ya
-        registrados.
+        1 buy-in = {buyin || "?"} € = {chips || "?"} fichas. Cambiarlo recalcula
+        los balances con los movimientos ya registrados.
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}
