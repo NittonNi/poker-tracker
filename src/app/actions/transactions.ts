@@ -80,6 +80,40 @@ export async function addTransfer(input: {
   return { ok: true };
 }
 
+/**
+ * Ajuste manual: corrige un descuadre añadiendo (o restando, con importe
+ * negativo) dinero y fichas a un jugador. Sirve para registrar un buy-in
+ * que se olvidó o cuadrar un recuento que no encaja.
+ */
+export async function addAdjustment(input: {
+  gameId: string;
+  playerId: string;
+  money: number;
+  note?: string;
+}): Promise<ActionResult> {
+  const { supabase, user } = await getAuthed();
+  const game = await gameRate(supabase, input.gameId);
+  if (!game) return { ok: false, error: "Partida no encontrada" };
+  if (game.status === "closed")
+    return { ok: false, error: "La partida está cerrada" };
+  const money = Number(input.money);
+  if (!isFinite(money) || money === 0)
+    return { ok: false, error: "El importe del ajuste no puede ser 0" };
+
+  const { error } = await supabase.from("transactions").insert({
+    game_id: input.gameId,
+    type: "adjustment",
+    player_id: input.playerId,
+    amount_money: money,
+    amount_points: moneyToPoints(money, Number(game.rate)),
+    note: input.note?.trim() || null,
+    created_by: user.id,
+  });
+  if (error) return { ok: false, error: error.message };
+  revalidatePath(`/partidas/${input.gameId}`);
+  return { ok: true };
+}
+
 export async function deleteTransaction(
   transactionId: string,
   gameId: string,

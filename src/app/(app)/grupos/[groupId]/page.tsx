@@ -61,7 +61,7 @@ export default async function GroupPage({
 
       <div className="grid grid-cols-2 gap-3">
         <Link href={`/grupos/${groupId}/jugadores`}>
-          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-neutral-50">
+          <Card className="flex items-center gap-3 p-4 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md">
             <Users className="size-6 text-neutral-700" strokeWidth={1.75} />
             <div>
               <div className="font-semibold text-neutral-900">Jugadores</div>
@@ -72,7 +72,7 @@ export default async function GroupPage({
           </Card>
         </Link>
         <Link href={`/grupos/${groupId}/estadisticas`}>
-          <Card className="flex items-center gap-3 p-4 transition-colors hover:bg-neutral-50">
+          <Card className="flex items-center gap-3 p-4 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md">
             <BarChart3 className="size-6 text-neutral-700" strokeWidth={1.75} />
             <div>
               <div className="font-semibold text-neutral-900">Estadísticas</div>
@@ -107,7 +107,7 @@ export default async function GroupPage({
           {games.map((game) => (
             <li key={game.id}>
               <Link href={`/partidas/${game.id}`}>
-                <Card className="flex items-center justify-between p-4 transition-colors hover:bg-neutral-50">
+                <Card className="flex items-center justify-between p-4 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="truncate font-semibold text-neutral-900">

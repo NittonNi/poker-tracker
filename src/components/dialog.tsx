@@ -30,7 +30,7 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4"
       role="dialog"
       aria-modal="true"
     >
@@ -38,7 +38,7 @@ export function Modal({
         className="animate-overlay absolute inset-0 bg-neutral-950/40 backdrop-blur-sm"
         onClick={onClose}
       />
-      <div className="safe-bottom animate-in relative z-10 w-full max-w-md rounded-t-3xl border border-neutral-200 bg-white p-5 shadow-2xl sm:rounded-3xl">
+      <div className="animate-in relative z-10 my-auto max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-neutral-200 bg-white p-5 shadow-2xl">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold text-neutral-900">{title}</h2>
           <button

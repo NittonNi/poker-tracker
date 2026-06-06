@@ -2,7 +2,15 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Check, ArrowLeftRight, Coins, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Check,
+  X,
+  ArrowLeftRight,
+  Coins,
+  Trash2,
+  SlidersHorizontal,
+} from "lucide-react";
 import {
   Avatar,
   Badge,
@@ -28,7 +36,12 @@ import {
   totalFinalChips,
   type TxInput,
 } from "@/lib/poker";
-import { addBuyIn, addTransfer, deleteTransaction } from "@/app/actions/transactions";
+import {
+  addBuyIn,
+  addTransfer,
+  addAdjustment,
+  deleteTransaction,
+} from "@/app/actions/transactions";
 import {
   closeGame,
   reopenGame,
@@ -147,11 +160,13 @@ export function GameBoard({
   const [error, setError] = useState<string | null>(null);
 
   function onFinalChange(playerId: string, value: string) {
-    setFinalChips((prev) => ({ ...prev, [playerId]: value }));
+    // Sin negativos: un jugador no puede acabar con fichas negativas.
+    const clean = value.replace(/-/g, "");
+    setFinalChips((prev) => ({ ...prev, [playerId]: clean }));
   }
   function onFinalBlur(playerId: string) {
     const v = finalChips[playerId];
-    const num = v === "" ? null : Number(v);
+    const num = v === "" ? null : Math.max(0, Number(v));
     startTransition(async () => {
       await saveFinalChips(game.id, playerId, num);
     });
@@ -245,6 +260,7 @@ export function GameBoard({
                     className={`${inputClass} h-9 flex-1`}
                     type="number"
                     inputMode="numeric"
+                    min={0}
                     placeholder="0"
                     value={finalChips[p.playerId] ?? ""}
                     onChange={(e) => onFinalChange(p.playerId, e.target.value)}
@@ -266,14 +282,22 @@ export function GameBoard({
 
       {/* Acciones de recompra */}
       {isOpen && (
-        <div className="grid grid-cols-2 gap-2">
-          <BuyInButton
-            gameId={game.id}
-            players={players}
-            rate={rate}
-            currency={currency}
-          />
-          <TransferButton
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <BuyInButton
+              gameId={game.id}
+              players={players}
+              rate={rate}
+              currency={currency}
+            />
+            <TransferButton
+              gameId={game.id}
+              players={players}
+              rate={rate}
+              currency={currency}
+            />
+          </div>
+          <AdjustmentButton
             gameId={game.id}
             players={players}
             rate={rate}
@@ -649,6 +673,133 @@ function TransferForm({
   );
 }
 
+/* ----------------------- Ajuste manual (cuadrar) -------------------- */
+function AdjustmentButton({
+  gameId,
+  players,
+  rate,
+  currency,
+}: {
+  gameId: string;
+  players: PlayerInfo[];
+  rate: number;
+  currency: string;
+}) {
+  const router = useRouter();
+  return (
+    <ModalButton
+      label={
+        <>
+          <SlidersHorizontal size={16} />
+          Ajuste manual
+        </>
+      }
+      title="Ajuste manual"
+      className={`${buttonClass("ghost", "sm")} w-full`}
+    >
+      {(close) => (
+        <AdjustmentForm
+          close={close}
+          gameId={gameId}
+          players={players}
+          rate={rate}
+          currency={currency}
+          onDone={() => router.refresh()}
+        />
+      )}
+    </ModalButton>
+  );
+}
+
+function AdjustmentForm({
+  close,
+  gameId,
+  players,
+  rate,
+  currency,
+  onDone,
+}: {
+  close: () => void;
+  gameId: string;
+  players: PlayerInfo[];
+  rate: number;
+  currency: string;
+  onDone: () => void;
+}) {
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [playerId, setPlayerId] = useState("");
+  const [money, setMoney] = useState("");
+  const moneyNum = money ? Number(money) : 0;
+  const points = moneyNum ? moneyToPoints(moneyNum, rate) : 0;
+
+  function submit() {
+    setError(null);
+    if (!playerId) return setError("Elige un jugador");
+    if (!moneyNum) return setError("El importe no puede ser 0");
+    startTransition(async () => {
+      const res = await addAdjustment({ gameId, playerId, money: moneyNum });
+      if (res.ok) {
+        close();
+        onDone();
+      } else setError(res.error);
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-neutral-500">
+        Corrige un descuadre: suma (importe positivo) o resta (importe negativo)
+        dinero y fichas a un jugador. Útil si se olvidó un buy-in o el recuento
+        no cuadra.
+      </p>
+      <div>
+        <label className={labelClass}>Jugador</label>
+        <select
+          className={inputClass}
+          value={playerId}
+          onChange={(e) => setPlayerId(e.target.value)}
+        >
+          <option value="">Elige…</option>
+          {players.map((p) => (
+            <option key={p.playerId} value={p.playerId}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className={labelClass}>Importe ({currency})</label>
+        <input
+          className={inputClass}
+          type="number"
+          inputMode="decimal"
+          placeholder="Ej: 5 ó -5"
+          value={money}
+          onChange={(e) => setMoney(e.target.value)}
+          autoFocus
+        />
+        <p className="mt-1.5 text-xs text-neutral-400">
+          = {formatPoints(points)} fichas {moneyNum < 0 ? "menos" : "más"}
+        </p>
+      </div>
+      {error && <p className="text-sm text-red-600">{error}</p>}
+      <div className="flex gap-2">
+        <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>
+          Cancelar
+        </button>
+        <button
+          onClick={submit}
+          disabled={pending || !money}
+          className={`${buttonClass("primary")} flex-1`}
+        >
+          {pending ? "Guardando…" : "Aplicar ajuste"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ----------------------------- Movimientos -------------------------- */
 function Movements({
   transactions,
@@ -665,6 +816,7 @@ function Movements({
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [confirmId, setConfirmId] = useState<string | null>(null);
 
   if (transactions.length === 0) {
     return (
@@ -693,11 +845,15 @@ function Movements({
               className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                 t.type === "transfer"
                   ? "bg-neutral-100 text-neutral-600"
-                  : "bg-emerald-50 text-emerald-700"
+                  : t.type === "adjustment"
+                    ? "bg-amber-50 text-amber-700"
+                    : "bg-emerald-50 text-emerald-700"
               }`}
             >
               {t.type === "transfer" ? (
                 <ArrowLeftRight size={15} />
+              ) : t.type === "adjustment" ? (
+                <SlidersHorizontal size={15} />
               ) : (
                 <Coins size={15} />
               )}
@@ -706,22 +862,45 @@ function Movements({
               <div className="truncate text-sm text-neutral-900">
                 {t.type === "transfer"
                   ? `${nameById[t.playerId] ?? "?"} compró a ${nameById[t.counterpartyId ?? ""] ?? "?"}`
-                  : `${nameById[t.playerId] ?? "?"} · buy-in`}
+                  : t.type === "adjustment"
+                    ? `${nameById[t.playerId] ?? "?"} · ajuste`
+                    : `${nameById[t.playerId] ?? "?"} · buy-in`}
               </div>
               <div className="text-xs text-neutral-400">
                 {formatMoney(t.money, currency)} · {formatPoints(t.points)} fichas
               </div>
             </div>
-            {canDelete && (
-              <button
-                onClick={() => del(t.id)}
-                disabled={pending}
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                aria-label="Borrar movimiento"
-              >
-                <Trash2 size={16} />
-              </button>
-            )}
+            {canDelete &&
+              (confirmId === t.id ? (
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    onClick={() => {
+                      del(t.id);
+                      setConfirmId(null);
+                    }}
+                    disabled={pending}
+                    className="flex h-8 items-center rounded-lg bg-red-600 px-2.5 text-xs font-medium text-white transition-colors hover:bg-red-500"
+                  >
+                    Borrar
+                  </button>
+                  <button
+                    onClick={() => setConfirmId(null)}
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
+                    aria-label="Cancelar"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmId(t.id)}
+                  disabled={pending}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                  aria-label="Borrar movimiento"
+                >
+                  <Trash2 size={16} />
+                </button>
+              ))}
           </div>
         ))}
       </Card>
@@ -762,7 +941,7 @@ function SettlementList({
             key={s.id}
             onClick={() => toggle(s)}
             disabled={pending}
-            className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-neutral-50"
+            className="flex w-full items-center gap-3 px-3 py-3 text-left transition-colors hover:bg-neutral-50"
           >
             <span
               className={`flex h-6 w-6 items-center justify-center rounded-md ${
