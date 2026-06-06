@@ -71,7 +71,7 @@ export default async function GruposPage() {
             return (
               <li key={g.id}>
                 <Link href={`/grupos/${g.id}`}>
-                  <Card className="p-4 transition-all hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md">
+                  <Card className="p-4 transition duration-150 ease-out hover:border-neutral-300 hover:bg-neutral-50 hover:shadow-md active:scale-[0.99]">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="truncate text-lg font-semibold text-neutral-900">

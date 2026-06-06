@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { AccountMenu } from "@/components/account-menu";
+import { PageTransition } from "@/components/page-transition";
 
 export default async function AppLayout({
   children,
@@ -41,7 +42,9 @@ export default async function AppLayout({
         </div>
       </header>
 
-      <main className="safe-bottom flex-1 px-4 py-5">{children}</main>
+      <main className="safe-bottom flex-1 px-4 py-5">
+        <PageTransition>{children}</PageTransition>
+      </main>
     </div>
   );
 }
