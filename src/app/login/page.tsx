@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
+import { EmailAuthForm } from "@/components/email-auth-form";
 
 export default async function LoginPage({
   searchParams,
@@ -36,8 +37,16 @@ export default async function LoginPage({
         )}
 
         <div className="mt-8">
-          <GoogleSignInButton next={next} />
+          <EmailAuthForm next={next} />
         </div>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/10" />
+          <span className="text-xs uppercase tracking-wide text-zinc-500">o</span>
+          <div className="h-px flex-1 bg-white/10" />
+        </div>
+
+        <GoogleSignInButton next={next} />
 
         <p className="mt-6 text-xs text-zinc-500">
           Al continuar aceptas guardar tus partidas en tu cuenta.
