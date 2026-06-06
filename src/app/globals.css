@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+@theme {
+  --color-felt-950: #07140d;
+  --color-felt-900: #0a1f14;
+  --color-felt-800: #0c2b1a;
+  --color-felt-700: #0e3a22;
+  --color-brand-500: #16a34a;
+  --color-brand-600: #15803d;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background-color: #07140d;
+}
+
+body {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #0e3a22 0%, #0a1f14 45%, #07140d 100%)
+    fixed;
+  color: #e5e7eb;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respeta las zonas seguras del móvil (notch, barra inferior) en modo PWA */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Oculta la barra de scroll pero permite scroll (carruseles) */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: modal-in 0.18s ease-out;
+}
+
+/* Inputs numéricos sin las flechas */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}

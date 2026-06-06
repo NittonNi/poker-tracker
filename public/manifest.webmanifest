@@ -1,0 +1,32 @@
+{
+  "name": "Poker Home Tracker",
+  "short_name": "Poker",
+  "description": "Registro de partidas de poker caseras: recompras, conversión de fichas y liquidación de quién paga a quién.",
+  "start_url": "/grupos",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0f0c",
+  "theme_color": "#0c6b39",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

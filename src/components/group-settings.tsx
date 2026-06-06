@@ -1,0 +1,141 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { ModalButton } from "@/components/dialog";
+import { buttonClass, inputClass, labelClass } from "@/components/ui";
+import {
+  deleteGroup,
+  renameGroup,
+  updateGroupSettings,
+} from "@/app/actions/groups";
+
+type Group = {
+  id: string;
+  name: string;
+  currency: string;
+  default_rate: number;
+};
+
+export function GroupSettings({ group }: { group: Group }) {
+  return (
+    <ModalButton
+      label={<span className="text-xl">⚙️</span>}
+      title="Ajustes del grupo"
+      className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] hover:bg-white/10"
+    >
+      {(close) => <Form close={close} group={group} />}
+    </ModalButton>
+  );
+}
+
+function Form({ close, group }: { close: () => void; group: Group }) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [name, setName] = useState(group.name);
+  const [currency, setCurrency] = useState(group.currency);
+  const [rate, setRate] = useState(String(group.default_rate));
+
+  function save() {
+    setError(null);
+    startTransition(async () => {
+      const r1 = await renameGroup(group.id, name);
+      if (!r1.ok) return setError(r1.error);
+      const r2 = await updateGroupSettings(group.id, {
+        currency,
+        default_rate: Number(rate),
+      });
+      if (!r2.ok) return setError(r2.error);
+      router.refresh();
+      close();
+    });
+  }
+
+  function remove() {
+    startTransition(async () => {
+      await deleteGroup(group.id);
+    });
+  }
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className={labelClass}>Nombre</label>
+        <input
+          className={inputClass}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className={labelClass}>Moneda</label>
+          <input
+            className={inputClass}
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            maxLength={3}
+          />
+        </div>
+        <div>
+          <label className={labelClass}>Fichas por unidad</label>
+          <input
+            className={inputClass}
+            type="number"
+            value={rate}
+            onChange={(e) => setRate(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {error && <p className="text-sm text-rose-400">{error}</p>}
+
+      <div className="flex gap-2">
+        <button onClick={close} className={`${buttonClass("secondary")} flex-1`}>
+          Cancelar
+        </button>
+        <button
+          onClick={save}
+          disabled={pending}
+          className={`${buttonClass("primary")} flex-1`}
+        >
+          {pending ? "Guardando…" : "Guardar"}
+        </button>
+      </div>
+
+      <div className="border-t border-white/10 pt-4">
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="text-sm text-rose-400 hover:text-rose-300"
+          >
+            Eliminar grupo
+          </button>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-zinc-300">
+              ¿Seguro? Se borrarán todas las partidas y el historial del grupo.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirmDelete(false)}
+                className={`${buttonClass("secondary", "sm")} flex-1`}
+              >
+                No
+              </button>
+              <button
+                onClick={remove}
+                disabled={pending}
+                className={`${buttonClass("danger", "sm")} flex-1`}
+              >
+                Sí, eliminar
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
