@@ -51,6 +51,7 @@ import {
 } from "@/app/actions/games";
 import { setSettlementPaid } from "@/app/actions/settlements";
 import { GameSettings } from "@/components/game-settings";
+import { ShareResultButton } from "@/components/share-result-button";
 
 type Game = {
   id: string;
@@ -163,6 +164,17 @@ export function GameBoard({
 
   const totalMoney = balances.reduce((s, b) => s + b.buyinMoney, 0);
   const buyInsCount = transactions.filter((t) => t.type === "buy_in").length;
+
+  const standings = useMemo(
+    () =>
+      [...balances]
+        .sort((a, b) => b.balance - a.balance)
+        .map((b) => ({
+          name: nameById[b.playerId] ?? "?",
+          balance: b.balance,
+        })),
+    [balances, nameById],
+  );
 
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -406,10 +418,7 @@ export function GameBoard({
               </button>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <span className="flex-1 text-sm text-neutral-500">
-                Partida cerrada
-              </span>
+            <div className="flex items-center gap-2">
               <button
                 onClick={doReopen}
                 disabled={pending}
@@ -417,6 +426,19 @@ export function GameBoard({
               >
                 Reabrir
               </button>
+              <ShareResultButton
+                gameName={game.name}
+                dateText={formatDate(game.playedOn)}
+                currency={currency}
+                pot={totalMoney}
+                standings={standings}
+                payments={settlements.map((s) => ({
+                  from: nameById[s.from] ?? "?",
+                  to: nameById[s.to] ?? "?",
+                  amount: s.amount,
+                }))}
+                className="flex-1"
+              />
             </div>
           )}
         </div>
