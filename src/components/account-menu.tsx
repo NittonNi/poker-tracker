@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MessageSquarePlus } from "lucide-react";
+import { MessageSquarePlus, ShieldCheck } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { signOut } from "@/app/actions/auth";
 
@@ -10,10 +10,12 @@ export function AccountMenu({
   name,
   email,
   avatarUrl,
+  isAdmin,
 }: {
   name: string;
   email: string;
   avatarUrl?: string | null;
+  isAdmin?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -50,6 +52,16 @@ export function AccountMenu({
             </p>
             <p className="truncate text-xs text-neutral-500">{email}</p>
           </div>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+            >
+              <ShieldCheck size={16} />
+              Panel de admin
+            </Link>
+          )}
           <Link
             href="/feedback"
             onClick={() => setOpen(false)}

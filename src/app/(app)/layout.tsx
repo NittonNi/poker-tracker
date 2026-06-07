@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { isAdminEmail } from "@/lib/is-admin";
 import { AccountMenu } from "@/components/account-menu";
 import { PageTransition } from "@/components/page-transition";
 
@@ -38,6 +39,7 @@ export default async function AppLayout({
             name={name}
             email={profile?.email || user.email || ""}
             avatarUrl={profile?.avatar_url}
+            isAdmin={isAdminEmail(user.email)}
           />
         </div>
       </header>
