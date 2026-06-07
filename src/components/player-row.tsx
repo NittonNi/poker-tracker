@@ -21,9 +21,13 @@ type Player = {
 export function PlayerRow({
   player,
   groupId,
+  ownerId,
+  canManage,
 }: {
   player: Player;
   groupId: string;
+  ownerId: string | null;
+  canManage: boolean;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -59,13 +63,18 @@ export function PlayerRow({
                 <span className="truncate font-medium text-neutral-900">
                   {player.display_name}
                 </span>
-                {player.user_id && <Badge color="emerald">Cuenta</Badge>}
+                {player.user_id && player.user_id === ownerId ? (
+                  <Badge color="amber">Admin</Badge>
+                ) : player.user_id ? (
+                  <Badge color="emerald">Cuenta</Badge>
+                ) : null}
                 {!player.is_active && <Badge color="zinc">Inactivo</Badge>}
               </div>
             </div>
           )}
 
-          {editing ? (
+          {canManage &&
+            (editing ? (
             <div className="flex gap-1.5">
               <button
                 onClick={() => {
@@ -102,7 +111,7 @@ export function PlayerRow({
               }
               onDelete={() => setConfirmDelete(true)}
             />
-          )}
+          ))}
         </div>
 
         {error && <p className="mt-2 text-sm text-red-600">{error}</p>}

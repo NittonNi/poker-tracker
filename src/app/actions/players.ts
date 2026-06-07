@@ -61,7 +61,17 @@ export async function deletePlayer(
   playerId: string,
   groupId: string,
 ): Promise<ActionResult> {
-  const { supabase } = await getAuthed();
+  const { supabase, user } = await getAuthed();
+  const { data: g } = await supabase
+    .from("groups")
+    .select("created_by")
+    .eq("id", groupId)
+    .single();
+  if (g?.created_by !== user.id)
+    return {
+      ok: false,
+      error: "Solo el admin del grupo puede borrar jugadores",
+    };
   const { error } = await supabase.from("players").delete().eq("id", playerId);
   if (error) return { ok: false, error: error.message };
   revalidatePath(`/grupos/${groupId}/jugadores`);

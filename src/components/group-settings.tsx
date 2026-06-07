@@ -85,6 +85,13 @@ function Form({
 
   return (
     <div className="space-y-4">
+      {!isOwner && (
+        <p className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-2.5 text-sm text-neutral-600">
+          Eres miembro. Solo el admin del grupo puede cambiar los ajustes.
+        </p>
+      )}
+      {isOwner && (
+        <>
       <div>
         <label className={labelClass}>Nombre</label>
         <input
@@ -135,6 +142,8 @@ function Form({
           {pending ? "Guardando…" : "Guardar"}
         </button>
       </div>
+        </>
+      )}
 
       <div className="border-t border-neutral-200 pt-4">
         {!confirmDelete ? (

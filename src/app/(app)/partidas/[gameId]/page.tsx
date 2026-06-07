@@ -11,6 +11,10 @@ export default async function PartidaPage({
   const { gameId } = await params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: game } = await supabase
     .from("games")
     .select("*")
@@ -25,7 +29,11 @@ export default async function PartidaPage({
     { data: txs },
     { data: settlements },
   ] = await Promise.all([
-    supabase.from("groups").select("id, name").eq("id", game.group_id).single(),
+    supabase
+      .from("groups")
+      .select("id, name, created_by")
+      .eq("id", game.group_id)
+      .single(),
     supabase
       .from("game_players")
       .select("player_id, final_chips")
@@ -81,6 +89,7 @@ export default async function PartidaPage({
         }}
         players={players}
         roster={eligible}
+        isOwner={group?.created_by === user?.id}
         transactions={(txs ?? []).map((t) => ({
           id: t.id,
           type: t.type as "buy_in" | "transfer" | "adjustment",

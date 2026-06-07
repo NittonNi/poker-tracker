@@ -14,12 +14,18 @@ export default async function JugadoresPage({
   const { groupId } = await params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: group } = await supabase
     .from("groups")
-    .select("id, name, invite_code")
+    .select("id, name, invite_code, created_by")
     .eq("id", groupId)
     .single();
   if (!group) notFound();
+
+  const isOwner = group.created_by === user?.id;
 
   const { data: players } = await supabase
     .from("players")
@@ -50,7 +56,13 @@ export default async function JugadoresPage({
       {active.length > 0 && (
         <ul className="space-y-2">
           {active.map((p) => (
-            <PlayerRow key={p.id} player={p} groupId={groupId} />
+            <PlayerRow
+              key={p.id}
+              player={p}
+              groupId={groupId}
+              ownerId={group.created_by}
+              canManage={isOwner}
+            />
           ))}
         </ul>
       )}
@@ -62,7 +74,13 @@ export default async function JugadoresPage({
           </h2>
           <ul className="space-y-2">
             {inactive.map((p) => (
-              <PlayerRow key={p.id} player={p} groupId={groupId} />
+              <PlayerRow
+              key={p.id}
+              player={p}
+              groupId={groupId}
+              ownerId={group.created_by}
+              canManage={isOwner}
+            />
             ))}
           </ul>
         </div>

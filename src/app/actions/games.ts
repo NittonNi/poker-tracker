@@ -238,7 +238,14 @@ export async function deleteGame(
   gameId: string,
   groupId: string,
 ): Promise<void> {
-  const { supabase } = await getAuthed();
+  const { supabase, user } = await getAuthed();
+  // Solo el dueño del grupo puede borrar partidas.
+  const { data: g } = await supabase
+    .from("groups")
+    .select("created_by")
+    .eq("id", groupId)
+    .single();
+  if (g?.created_by !== user.id) return;
   await supabase.from("games").delete().eq("id", gameId);
   revalidatePath(`/grupos/${groupId}`);
 }

@@ -95,12 +95,14 @@ export function GameBoard({
   roster,
   transactions,
   settlements,
+  isOwner,
 }: {
   game: Game;
   players: PlayerInfo[];
   roster: RosterPlayer[];
   transactions: Tx[];
   settlements: Settlement[];
+  isOwner: boolean;
 }) {
   const router = useRouter();
   const isOpen = game.status === "open";
@@ -227,7 +229,7 @@ export function GameBoard({
             {formatPoints(Math.round(game.buyin * rate))} fichas
           </p>
         </div>
-        <GameSettings game={game} />
+        {isOwner && <GameSettings game={game} />}
       </div>
 
       {/* Resumen / bote */}
