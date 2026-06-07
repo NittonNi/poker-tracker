@@ -85,6 +85,7 @@ export default async function PartidaPage({
           status: game.status as "open" | "closed",
           rate: Number(game.rate),
           buyin: Number(game.buyin),
+          cashMode: game.cash_mode,
           currency: game.currency,
         }}
         players={players}

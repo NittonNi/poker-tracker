@@ -9,6 +9,7 @@ import {
   SquarePlus,
   Download,
   ChevronRight,
+  MessageSquarePlus,
 } from "lucide-react";
 import { buttonClass } from "@/components/ui";
 
@@ -71,11 +72,18 @@ export function Onboarding() {
 
   if (!mounted || !show) return null;
 
-  const slides = [
+  const slides: {
+    icon: React.ReactNode;
+    title: string;
+    text: string;
+    badge?: string;
+    install?: boolean;
+  }[] = [
     {
       icon: <Spade size={40} />,
       title: "Bienvenido a Poker Home Tracker",
       text: "Lleva las cuentas de vuestras partidas caseras de poker, sin discusiones ni servilletas.",
+      badge: "Versión de prueba (beta)",
     },
     {
       icon: <HandCoins size={40} />,
@@ -86,6 +94,11 @@ export function Onboarding() {
       icon: <Trophy size={40} />,
       title: "Pique sano",
       text: "Ranking del grupo, estadísticas y un resumen de cada noche que podéis compartir como una imagen.",
+    },
+    {
+      icon: <MessageSquarePlus size={40} />,
+      title: "Es una beta: ayúdanos",
+      text: "La app está en pruebas y mejora con vuestras ideas. ¿Algo que falla o que echas en falta? Mándanos feedback desde el menú de tu perfil (arriba a la derecha) → “Enviar feedback”.",
     },
     {
       icon: <Download size={40} />,
@@ -118,6 +131,11 @@ export function Onboarding() {
         <div className="mb-7 flex h-24 w-24 items-center justify-center rounded-[1.8rem] bg-neutral-900 text-white shadow-xl ring-1 ring-black/5">
           {s.icon}
         </div>
+        {s.badge && (
+          <span className="mb-3 inline-flex items-center rounded-full bg-neutral-900 px-3 py-1 text-xs font-medium text-white">
+            {s.badge}
+          </span>
+        )}
         <h1 className="max-w-xs text-2xl font-bold tracking-tight text-neutral-900">
           {s.title}
         </h1>

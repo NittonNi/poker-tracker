@@ -8,19 +8,26 @@ export async function createGroup(input: {
   name: string;
   /** buy-in estándar en € */
   buyin: number;
-  /** fichas que se reciben por ese buy-in */
+  /** fichas que se reciben por ese buy-in (ignorado en modo euros) */
   buyinChips: number;
+  /** modo euros: sin fichas */
+  cashMode?: boolean;
 }): Promise<ActionResult> {
   const { supabase } = await getAuthed();
   const name = input.name?.trim();
   if (!name) return { ok: false, error: "Pon un nombre al grupo" };
+  const cashMode = !!input.cashMode;
   const buyin = Number(input.buyin);
-  const chips = Number(input.buyinChips);
   if (!isFinite(buyin) || buyin <= 0)
     return { ok: false, error: "El buy-in debe ser mayor que 0 €" };
-  if (!isFinite(chips) || chips <= 0)
-    return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
-  const rate = chips / buyin; // fichas por €
+
+  let rate = 1;
+  if (!cashMode) {
+    const chips = Number(input.buyinChips);
+    if (!isFinite(chips) || chips <= 0)
+      return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+    rate = chips / buyin;
+  }
 
   const { data: groupId, error } = await supabase.rpc("create_group", {
     p_name: name,
@@ -32,7 +39,7 @@ export async function createGroup(input: {
   if (groupId) {
     await supabase
       .from("groups")
-      .update({ default_buyin: buyin })
+      .update({ default_buyin: buyin, default_cash_mode: cashMode })
       .eq("id", groupId);
   }
 
@@ -59,20 +66,26 @@ export async function renameGroup(
 
 export async function updateGroupSettings(
   groupId: string,
-  input: { buyin: number; buyinChips: number },
+  input: { buyin: number; buyinChips: number; cashMode?: boolean },
 ): Promise<ActionResult> {
   const { supabase } = await getAuthed();
+  const cashMode = !!input.cashMode;
   const buyin = Number(input.buyin);
-  const chips = Number(input.buyinChips);
   if (!isFinite(buyin) || buyin <= 0)
     return { ok: false, error: "El buy-in debe ser mayor que 0 €" };
-  if (!isFinite(chips) || chips <= 0)
-    return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+  let rate = 1;
+  if (!cashMode) {
+    const chips = Number(input.buyinChips);
+    if (!isFinite(chips) || chips <= 0)
+      return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+    rate = chips / buyin;
+  }
   const { error } = await supabase
     .from("groups")
     .update({
       default_buyin: buyin,
-      default_rate: chips / buyin,
+      default_rate: rate,
+      default_cash_mode: cashMode,
     })
     .eq("id", groupId);
   if (error) return { ok: false, error: error.message };

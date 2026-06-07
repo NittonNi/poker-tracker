@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getAuthed, type ActionResult } from "./helpers";
-import { moneyToPoints } from "@/lib/poker";
+import { moneyToPoints, round2 } from "@/lib/poker";
 
 async function gameRate(
   supabase: Awaited<ReturnType<typeof getAuthed>>["supabase"],
@@ -10,10 +10,18 @@ async function gameRate(
 ) {
   const { data } = await supabase
     .from("games")
-    .select("rate, status")
+    .select("rate, status, cash_mode")
     .eq("id", gameId)
     .single();
   return data;
+}
+
+/** Puntos de un movimiento: € exactos en modo cash, fichas (enteras) si no. */
+function pointsFor(
+  game: { rate: number; cash_mode: boolean },
+  money: number,
+): number {
+  return game.cash_mode ? round2(money) : moneyToPoints(money, Number(game.rate));
 }
 
 /** Buy-in / recompra a la mesa (bote): el jugador paga dinero y recibe puntos. */
@@ -37,7 +45,7 @@ export async function addBuyIn(input: {
     type: "buy_in",
     player_id: input.playerId,
     amount_money: money,
-    amount_points: moneyToPoints(money, Number(game.rate)),
+    amount_points: pointsFor(game, money),
     note: input.note?.trim() || null,
     created_by: user.id,
   });
@@ -71,7 +79,7 @@ export async function addTransfer(input: {
     player_id: input.buyerId,
     counterparty_player_id: input.sellerId,
     amount_money: money,
-    amount_points: moneyToPoints(money, Number(game.rate)),
+    amount_points: pointsFor(game, money),
     note: input.note?.trim() || null,
     created_by: user.id,
   });
@@ -105,7 +113,7 @@ export async function addAdjustment(input: {
     type: "adjustment",
     player_id: input.playerId,
     amount_money: money,
-    amount_points: moneyToPoints(money, Number(game.rate)),
+    amount_points: pointsFor(game, money),
     note: input.note?.trim() || null,
     created_by: user.id,
   });

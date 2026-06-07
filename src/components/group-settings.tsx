@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Settings } from "lucide-react";
+import { Settings, Check } from "lucide-react";
 import { ModalButton } from "@/components/dialog";
 import { buttonClass, inputClass, labelClass } from "@/components/ui";
 import {
@@ -17,6 +17,7 @@ type Group = {
   name: string;
   default_buyin: number;
   default_rate: number;
+  default_cash_mode: boolean;
 };
 
 export function GroupSettings({
@@ -51,6 +52,7 @@ function Form({
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [name, setName] = useState(group.name);
+  const [cashMode, setCashMode] = useState(group.default_cash_mode);
   const [buyin, setBuyin] = useState(String(group.default_buyin));
   const [chips, setChips] = useState(
     String(Math.round(group.default_buyin * group.default_rate)),
@@ -64,6 +66,7 @@ function Form({
       const r2 = await updateGroupSettings(group.id, {
         buyin: Number(buyin),
         buyinChips: Number(chips),
+        cashMode,
       });
       if (!r2.ok) return setError(r2.error);
       router.refresh();
@@ -100,7 +103,26 @@ function Form({
           onChange={(e) => setName(e.target.value)}
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <button
+        type="button"
+        onClick={() => setCashMode((v) => !v)}
+        className="flex w-full items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-left"
+      >
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded-md ${
+            cashMode
+              ? "bg-neutral-900 text-white"
+              : "border border-neutral-300 bg-white"
+          }`}
+        >
+          {cashMode && <Check size={13} strokeWidth={3} />}
+        </span>
+        <span className="text-sm text-neutral-700">
+          Jugar directamente en € (sin fichas)
+        </span>
+      </button>
+
+      <div className={cashMode ? "" : "grid grid-cols-2 gap-3"}>
         <div>
           <label className={labelClass}>Buy-in (€)</label>
           <input
@@ -112,20 +134,24 @@ function Form({
             onChange={(e) => setBuyin(e.target.value)}
           />
         </div>
-        <div>
-          <label className={labelClass}>Fichas por buy-in</label>
-          <input
-            className={inputClass}
-            type="number"
-            inputMode="numeric"
-            min={0}
-            value={chips}
-            onChange={(e) => setChips(e.target.value)}
-          />
-        </div>
+        {!cashMode && (
+          <div>
+            <label className={labelClass}>Fichas por buy-in</label>
+            <input
+              className={inputClass}
+              type="number"
+              inputMode="numeric"
+              min={0}
+              value={chips}
+              onChange={(e) => setChips(e.target.value)}
+            />
+          </div>
+        )}
       </div>
       <p className="-mt-1 text-xs text-neutral-400">
-        1 buy-in = {buyin || "?"} € = {chips || "?"} fichas.
+        {cashMode
+          ? `Sin fichas: se juega en € (con céntimos). Afecta a las partidas nuevas.`
+          : `1 buy-in = ${buyin || "?"} € = ${chips || "?"} fichas. Afecta a las partidas nuevas.`}
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

@@ -15,6 +15,7 @@ type Game = {
   status: "open" | "closed";
   rate: number;
   buyin: number;
+  cashMode: boolean;
 };
 
 export function GameSettings({ game }: { game: Game }) {
@@ -48,7 +49,7 @@ function Form({ close, game }: { close: () => void; game: Game }) {
         name,
         playedOn,
         buyin: Number(buyin),
-        buyinChips: Number(chips),
+        buyinChips: game.cashMode ? Number(buyin) : Number(chips),
       });
       if (!res.ok) return setError(res.error);
       router.refresh();
@@ -95,20 +96,23 @@ function Form({ close, game }: { close: () => void; game: Game }) {
           />
         </div>
       </div>
-      <div>
-        <label className={labelClass}>Fichas por buy-in</label>
-        <input
-          className={inputClass}
-          type="number"
-          inputMode="numeric"
-          min={0}
-          value={chips}
-          onChange={(e) => setChips(e.target.value)}
-        />
-      </div>
+      {!game.cashMode && (
+        <div>
+          <label className={labelClass}>Fichas por buy-in</label>
+          <input
+            className={inputClass}
+            type="number"
+            inputMode="numeric"
+            min={0}
+            value={chips}
+            onChange={(e) => setChips(e.target.value)}
+          />
+        </div>
+      )}
       <p className="text-xs text-neutral-400">
-        1 buy-in = {buyin || "?"} € = {chips || "?"} fichas. Cambiarlo recalcula
-        los balances con los movimientos ya registrados.
+        {game.cashMode
+          ? "Modo euros: se juega en € (con céntimos)."
+          : `1 buy-in = ${buyin || "?"} € = ${chips || "?"} fichas. Cambiarlo recalcula los balances con los movimientos ya registrados.`}
       </p>
 
       {error && <p className="text-sm text-red-600">{error}</p>}

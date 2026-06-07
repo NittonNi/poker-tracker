@@ -90,6 +90,7 @@ export default async function GroupPage({
           groupId={groupId}
           defaultBuyin={Number(group.default_buyin)}
           defaultRate={Number(group.default_rate)}
+          defaultCashMode={group.default_cash_mode}
           players={activePlayers}
         />
       </div>

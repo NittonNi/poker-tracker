@@ -7,6 +7,7 @@ import {
   computeBalances,
   computeSettlements,
   moneyToPoints,
+  round2,
   type TxInput,
 } from "@/lib/poker";
 
@@ -16,23 +17,30 @@ export async function createGame(input: {
   playedOn: string;
   /** buy-in estándar en € */
   buyin: number;
-  /** fichas que se reciben por ese buy-in */
+  /** fichas que se reciben por ese buy-in (ignorado en modo euros) */
   buyinChips: number;
   playerIds: string[];
   /** si true, registra un buy-in estándar a todos los jugadores al crear */
   applyInitialBuyIn?: boolean;
+  /** modo euros: sin fichas, se juega en € (admite decimales) */
+  cashMode?: boolean;
 }): Promise<{ ok: true; gameId: string } | { ok: false; error: string }> {
   const { supabase, user } = await getAuthed();
 
   if (!input.playerIds?.length)
     return { ok: false, error: "Selecciona al menos un jugador" };
+  const cashMode = !!input.cashMode;
   const buyin = Number(input.buyin);
-  const chips = Number(input.buyinChips);
   if (!isFinite(buyin) || buyin <= 0)
     return { ok: false, error: "El buy-in debe ser mayor que 0 €" };
-  if (!isFinite(chips) || chips <= 0)
-    return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
-  const rate = chips / buyin; // fichas por €
+
+  let rate = 1;
+  if (!cashMode) {
+    const chips = Number(input.buyinChips);
+    if (!isFinite(chips) || chips <= 0)
+      return { ok: false, error: "Las fichas del buy-in deben ser mayor que 0" };
+    rate = chips / buyin; // fichas por €
+  }
 
   const { data: game, error } = await supabase
     .from("games")
@@ -42,6 +50,7 @@ export async function createGame(input: {
       played_on: input.playedOn,
       rate,
       buyin,
+      cash_mode: cashMode,
       currency: "€",
       created_by: user.id,
     })
@@ -56,13 +65,14 @@ export async function createGame(input: {
 
   // Buy-in inicial opcional: registra el buy-in estándar a todos.
   if (input.applyInitialBuyIn) {
+    const points = cashMode ? round2(buyin) : moneyToPoints(buyin, rate);
     const { error: txError } = await supabase.from("transactions").insert(
       input.playerIds.map((pid) => ({
         game_id: game.id,
         type: "buy_in",
         player_id: pid,
         amount_money: buyin,
-        amount_points: moneyToPoints(buyin, rate),
+        amount_points: points,
         created_by: user.id,
       })),
     );

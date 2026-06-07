@@ -101,6 +101,7 @@ export type Database = {
       games: {
         Row: {
           buyin: number
+          cash_mode: boolean
           closed_at: string | null
           created_at: string
           created_by: string | null
@@ -115,6 +116,7 @@ export type Database = {
         }
         Insert: {
           buyin?: number
+          cash_mode?: boolean
           closed_at?: string | null
           created_at?: string
           created_by?: string | null
@@ -129,6 +131,7 @@ export type Database = {
         }
         Update: {
           buyin?: number
+          cash_mode?: boolean
           closed_at?: string | null
           created_at?: string
           created_by?: string | null
@@ -203,6 +206,7 @@ export type Database = {
           created_by: string | null
           currency: string
           default_buyin: number
+          default_cash_mode: boolean
           default_rate: number
           id: string
           invite_code: string
@@ -213,6 +217,7 @@ export type Database = {
           created_by?: string | null
           currency?: string
           default_buyin?: number
+          default_cash_mode?: boolean
           default_rate?: number
           id?: string
           invite_code?: string
@@ -223,6 +228,7 @@ export type Database = {
           created_by?: string | null
           currency?: string
           default_buyin?: number
+          default_cash_mode?: boolean
           default_rate?: number
           id?: string
           invite_code?: string
