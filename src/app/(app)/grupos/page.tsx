@@ -50,7 +50,7 @@ export default async function GruposPage() {
     groupIds.length
       ? supabase
           .from("players")
-          .select("id, group_id, display_name")
+          .select("id, group_id, display_name, user_id")
           .in("group_id", groupIds)
       : Promise.resolve({ data: [] as never[] }),
     myPlayerIds.length
@@ -70,6 +70,26 @@ export default async function GruposPage() {
           .eq("status", "closed")
       : Promise.resolve({ data: [] as never[] }),
   ]);
+
+  // --- Teléfonos (Bizum) de los jugadores con cuenta ---
+  const userIds = [
+    ...new Set((rosterPlayers ?? []).map((p) => p.user_id).filter(Boolean)),
+  ] as string[];
+  const playerPhone = new Map<string, string>();
+  if (userIds.length) {
+    const { data: profs } = await supabase
+      .from("profiles")
+      .select("id, phone")
+      .in("id", userIds);
+    const phoneByUser = new Map(
+      (profs ?? []).filter((p) => p.phone).map((p) => [p.id, p.phone as string]),
+    );
+    for (const p of rosterPlayers ?? []) {
+      if (p.user_id && phoneByUser.has(p.user_id)) {
+        playerPhone.set(p.id, phoneByUser.get(p.user_id)!);
+      }
+    }
+  }
 
   // --- Mapas auxiliares ---
   const playerName = new Map(
@@ -169,6 +189,7 @@ export default async function GruposPage() {
         name: playerName.get(counterparty) ?? "Jugador",
         groupName: groupName.get(gid) ?? "Grupo",
         amount: Number(s.amount_money ?? 0),
+        phone: playerPhone.get(counterparty),
       };
     })
     .filter((d): d is DebtItem => d !== null)

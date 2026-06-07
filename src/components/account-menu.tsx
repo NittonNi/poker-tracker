@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { MessageSquarePlus, ShieldCheck } from "lucide-react";
+import { MessageSquarePlus, ShieldCheck, User } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { signOut } from "@/app/actions/auth";
 
@@ -52,6 +52,14 @@ export function AccountMenu({
             </p>
             <p className="truncate text-xs text-neutral-500">{email}</p>
           </div>
+          <Link
+            href="/perfil"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+          >
+            <User size={16} />
+            Mi perfil
+          </Link>
           {isAdmin && (
             <Link
               href="/admin"

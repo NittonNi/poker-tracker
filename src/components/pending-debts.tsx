@@ -2,7 +2,14 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowDownLeft, ArrowUpRight, Check, Send, ChevronDown } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Check,
+  Send,
+  ChevronDown,
+  Banknote,
+} from "lucide-react";
 import { Card, cn } from "@/components/ui";
 import { formatMoney } from "@/lib/format";
 import { setSettlementPaid } from "@/app/actions/settlements";
@@ -14,12 +21,14 @@ export type DebtItem = {
   name: string;
   groupName: string;
   amount: number;
+  phone?: string; // Bizum del que cobra (solo útil cuando yo debo)
 };
 
 export function PendingDebts({ items }: { items: DebtItem[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
+  const [bizumCopied, setBizumCopied] = useState<string | null>(null);
 
   if (items.length === 0) return null;
 
@@ -35,6 +44,25 @@ export function PendingDebts({ items }: { items: DebtItem[] }) {
       await setSettlementPaid(d.settlementId, d.gameId, true);
       router.refresh();
     });
+  }
+
+  async function bizum(d: DebtItem) {
+    if (!d.phone) return;
+    const text = `${d.phone} · ${formatMoney(d.amount)} (Bizum a ${d.name})`;
+    try {
+      await navigator.clipboard.writeText(d.phone);
+    } catch {
+      /* nada */
+    }
+    if (navigator.share) {
+      try {
+        await navigator.share({ text });
+      } catch {
+        /* cancelado */
+      }
+    }
+    setBizumCopied(d.settlementId);
+    setTimeout(() => setBizumCopied(null), 2200);
   }
 
   async function remind(d: DebtItem) {
@@ -129,6 +157,21 @@ export function PendingDebts({ items }: { items: DebtItem[] }) {
               >
                 {formatMoney(d.amount)}
               </span>
+              {d.dir === "out" && d.phone && (
+                <button
+                  onClick={() => bizum(d)}
+                  className="flex h-8 shrink-0 items-center gap-1 rounded-lg bg-neutral-900 px-2 text-xs font-medium text-white transition-colors hover:bg-neutral-800"
+                  aria-label="Pagar por Bizum"
+                  title={`Bizum a ${d.name}: ${d.phone}`}
+                >
+                  {bizumCopied === d.settlementId ? (
+                    <Check size={14} />
+                  ) : (
+                    <Banknote size={14} />
+                  )}
+                  {bizumCopied === d.settlementId ? "Copiado" : "Bizum"}
+                </button>
+              )}
               <button
                 onClick={() => remind(d)}
                 className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700"
