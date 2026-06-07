@@ -126,8 +126,11 @@ export default async function GruposPage() {
     .filter((x) => x.date)
     .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
-  let run = 0;
-  const cumulative = series.map((x) => (run += x.bal));
+  const cumulative: number[] = [];
+  for (let i = 0, run = 0; i < series.length; i++) {
+    run += series[i].bal;
+    cumulative.push(run);
+  }
 
   const now = new Date();
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;

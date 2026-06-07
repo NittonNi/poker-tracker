@@ -108,6 +108,18 @@ export async function regenerateInviteCode(
   return { ok: true, code };
 }
 
+/** El usuario se sale del grupo (conserva el historial para los demás). */
+export async function leaveGroup(groupId: string): Promise<void> {
+  const { supabase, user } = await getAuthed();
+  await supabase
+    .from("group_members")
+    .delete()
+    .eq("group_id", groupId)
+    .eq("user_id", user.id);
+  revalidatePath("/grupos");
+  redirect("/grupos");
+}
+
 export async function deleteGroup(groupId: string): Promise<void> {
   const { supabase } = await getAuthed();
   await supabase.from("groups").delete().eq("id", groupId);

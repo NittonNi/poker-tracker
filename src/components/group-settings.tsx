@@ -7,6 +7,7 @@ import { ModalButton } from "@/components/dialog";
 import { buttonClass, inputClass, labelClass } from "@/components/ui";
 import {
   deleteGroup,
+  leaveGroup,
   renameGroup,
   updateGroupSettings,
 } from "@/app/actions/groups";
@@ -18,19 +19,33 @@ type Group = {
   default_rate: number;
 };
 
-export function GroupSettings({ group }: { group: Group }) {
+export function GroupSettings({
+  group,
+  isOwner,
+}: {
+  group: Group;
+  isOwner: boolean;
+}) {
   return (
     <ModalButton
       label={<Settings size={18} />}
       title="Ajustes del grupo"
       className="flex h-10 w-10 items-center justify-center rounded-xl border border-neutral-200 bg-white text-neutral-600 transition-colors hover:bg-neutral-50 hover:text-neutral-900"
     >
-      {(close) => <Form close={close} group={group} />}
+      {(close) => <Form close={close} group={group} isOwner={isOwner} />}
     </ModalButton>
   );
 }
 
-function Form({ close, group }: { close: () => void; group: Group }) {
+function Form({
+  close,
+  group,
+  isOwner,
+}: {
+  close: () => void;
+  group: Group;
+  isOwner: boolean;
+}) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -59,6 +74,12 @@ function Form({ close, group }: { close: () => void; group: Group }) {
   function remove() {
     startTransition(async () => {
       await deleteGroup(group.id);
+    });
+  }
+
+  function leave() {
+    startTransition(async () => {
+      await leaveGroup(group.id);
     });
   }
 
@@ -121,12 +142,14 @@ function Form({ close, group }: { close: () => void; group: Group }) {
             onClick={() => setConfirmDelete(true)}
             className="text-sm text-red-600 hover:text-red-700"
           >
-            Eliminar grupo
+            {isOwner ? "Eliminar grupo" : "Salir del grupo"}
           </button>
         ) : (
           <div className="space-y-2">
             <p className="text-sm text-neutral-600">
-              ¿Seguro? Se borrarán todas las partidas y el historial del grupo.
+              {isOwner
+                ? "¿Seguro? Se borrarán todas las partidas y el historial del grupo para todos."
+                : "Saldrás del grupo. El historial se conserva para el resto; podrás volver con un enlace de invitación."}
             </p>
             <div className="flex gap-2">
               <button
@@ -136,11 +159,11 @@ function Form({ close, group }: { close: () => void; group: Group }) {
                 No
               </button>
               <button
-                onClick={remove}
+                onClick={isOwner ? remove : leave}
                 disabled={pending}
                 className={`${buttonClass("danger", "sm")} flex-1`}
               >
-                Sí, eliminar
+                {isOwner ? "Sí, eliminar" : "Sí, salir"}
               </button>
             </div>
           </div>

@@ -15,12 +15,18 @@ export default async function GroupPage({
   const { groupId } = await params;
   const supabase = await createClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data: group } = await supabase
     .from("groups")
     .select("*")
     .eq("id", groupId)
     .single();
   if (!group) notFound();
+
+  const isOwner = group.created_by === user?.id;
 
   const [{ data: players }, { data: games }, { data: gamePlayers }] =
     await Promise.all([
@@ -55,7 +61,7 @@ export default async function GroupPage({
         <PageHeader
           title={group.name}
           subtitle={`${players?.length ?? 0} jugadores · ${games?.length ?? 0} partidas`}
-          action={<GroupSettings group={group} />}
+          action={<GroupSettings group={group} isOwner={isOwner} />}
         />
       </div>
 
