@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { MessageSquarePlus } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { signOut } from "@/app/actions/auth";
 
@@ -48,6 +50,14 @@ export function AccountMenu({
             </p>
             <p className="truncate text-xs text-neutral-500">{email}</p>
           </div>
+          <Link
+            href="/feedback"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2 border-b border-neutral-100 px-4 py-3 text-sm text-neutral-700 hover:bg-neutral-50"
+          >
+            <MessageSquarePlus size={16} />
+            Enviar feedback
+          </Link>
           <form action={signOut}>
             <button
               type="submit"
