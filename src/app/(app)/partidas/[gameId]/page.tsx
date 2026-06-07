@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { GameBoard } from "@/components/game-board";
+import { BackLink } from "@/components/back-link";
 
 export default async function PartidaPage({
   params,
@@ -67,14 +67,7 @@ export default async function PartidaPage({
 
   return (
     <div className="space-y-4">
-      <div>
-        <Link
-          href={`/grupos/${game.group_id}`}
-          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
-        >
-          ← {group?.name ?? "Grupo"}
-        </Link>
-      </div>
+      <BackLink href={`/grupos/${game.group_id}`} label={group?.name ?? "Grupo"} />
       <GameBoard
         game={{
           id: game.id,

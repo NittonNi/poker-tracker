@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Users, BarChart3, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
+import { BackLink } from "@/components/back-link";
 import { formatDate } from "@/lib/format";
 import { NewGameForm } from "@/components/new-game-form";
 import { GroupSettings } from "@/components/group-settings";
@@ -52,12 +53,7 @@ export default async function GroupPage({
   return (
     <div className="space-y-5">
       <div>
-        <Link
-          href="/grupos"
-          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
-        >
-          ← Grupos
-        </Link>
+        <BackLink href="/grupos" label="Grupos" />
         <PageHeader
           title={group.name}
           subtitle={`${players?.length ?? 0} jugadores · ${games?.length ?? 0} partidas`}

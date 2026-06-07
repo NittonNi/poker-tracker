@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Avatar, Card, EmptyState, PageHeader, Stat } from "@/components/ui";
+import { BackLink } from "@/components/back-link";
 import { formatSignedMoney, formatMoney, balanceColor } from "@/lib/format";
 
 export default async function EstadisticasPage({
@@ -57,12 +57,7 @@ export default async function EstadisticasPage({
   return (
     <div className="space-y-5">
       <div>
-        <Link
-          href={`/grupos/${groupId}`}
-          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
-        >
-          ← {group.name}
-        </Link>
+        <BackLink href={`/grupos/${groupId}`} label={group.name} />
         <PageHeader
           title="Estadísticas"
           subtitle="Acumulado de todas las partidas cerradas."

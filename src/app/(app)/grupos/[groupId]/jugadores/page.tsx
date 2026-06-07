@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/ui";
 import { AddPlayerForm } from "@/components/add-player-form";
 import { InviteButton } from "@/components/invite-button";
 import { PlayerRow } from "@/components/player-row";
+import { BackLink } from "@/components/back-link";
 
 export default async function JugadoresPage({
   params,
@@ -34,12 +34,7 @@ export default async function JugadoresPage({
   return (
     <div className="space-y-5">
       <div>
-        <Link
-          href={`/grupos/${groupId}`}
-          className="mb-2 inline-block text-sm text-neutral-500 hover:text-neutral-900"
-        >
-          ← {group.name}
-        </Link>
+        <BackLink href={`/grupos/${groupId}`} label={group.name} />
         <PageHeader
           title="Jugadores"
           subtitle="Invita gente con cuenta o añade invitados sueltos."
