@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isAdminEmail } from "@/lib/is-admin";
 import { AccountMenu } from "@/components/account-menu";
 import { PageTransition } from "@/components/page-transition";
+import { NameSetup } from "@/components/name-setup";
 
 export default async function AppLayout({
   children,
@@ -22,8 +23,12 @@ export default async function AppLayout({
     .eq("id", user.id)
     .single();
 
-  const name =
-    profile?.display_name || user.email?.split("@")[0] || "Jugador";
+  // Primera vez: aún no ha elegido nombre → que lo elija antes de nada.
+  if (!profile?.display_name?.trim()) {
+    return <NameSetup suggestion={user.email?.split("@")[0] ?? ""} />;
+  }
+
+  const name = profile.display_name;
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-lg flex-col">

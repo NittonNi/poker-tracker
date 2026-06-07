@@ -6,12 +6,18 @@ import { ModalButton } from "@/components/dialog";
 import { buttonClass, inputClass, labelClass } from "@/components/ui";
 import { createGroup } from "@/app/actions/groups";
 
-export function CreateGroupForm() {
+export function CreateGroupForm({
+  label,
+  className,
+}: {
+  label?: React.ReactNode;
+  className?: string;
+} = {}) {
   return (
     <ModalButton
-      label="+ Nuevo grupo"
+      label={label ?? "+ Nuevo grupo"}
       title="Nuevo grupo"
-      className={buttonClass("primary", "sm")}
+      className={className ?? buttonClass("primary", "sm")}
     >
       {(close) => <Form close={close} />}
     </ModalButton>

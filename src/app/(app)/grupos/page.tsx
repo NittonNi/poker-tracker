@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Badge, Card, EmptyState, PageHeader } from "@/components/ui";
+import { Badge, Card, PageHeader } from "@/components/ui";
 import { formatSignedMoney, balanceColor } from "@/lib/format";
 import { CreateGroupForm } from "@/components/create-group-form";
+import { DemoButton } from "@/components/demo-button";
 import { Sparkline } from "@/components/sparkline";
 import { PendingDebts, type DebtItem } from "@/components/pending-debts";
 
@@ -224,12 +225,46 @@ export default async function GruposPage() {
       />
 
       {!groups?.length ? (
-        <EmptyState
-          icon="🃏"
-          title="Aún no tienes grupos"
-          description="Crea tu primer grupo para empezar a registrar partidas."
-          action={<CreateGroupForm />}
-        />
+        <Card className="p-5">
+          <div className="text-center">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-neutral-900 text-3xl text-white">
+              🃏
+            </div>
+            <h2 className="text-lg font-bold text-neutral-900">
+              Empieza en 3 pasos
+            </h2>
+            <p className="mt-1 text-sm text-neutral-500">
+              En un minuto tienes tu primera partida en marcha.
+            </p>
+          </div>
+
+          <ol className="mt-5 space-y-3">
+            {[
+              "Crea un grupo (tu peña de poker).",
+              "Añade jugadores o invítalos con un enlace.",
+              "Empieza una partida y apunta los buy-ins.",
+            ].map((t, idx) => (
+              <li key={idx} className="flex items-start gap-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-neutral-900 text-xs font-bold text-white">
+                  {idx + 1}
+                </span>
+                <span className="text-sm text-neutral-700">{t}</span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-6 space-y-2">
+            <CreateGroupForm
+              label="Crear mi primer grupo"
+              className={`${"inline-flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-neutral-900 px-5 text-base font-medium text-white shadow-sm transition active:scale-[0.97] hover:bg-neutral-800"}`}
+            />
+            <DemoButton />
+            <p className="pt-1 text-center text-xs text-neutral-400">
+              ¿Solo curioseando? Prueba con un grupo de ejemplo y bórralo cuando
+              quieras.
+            </p>
+          </div>
+        </Card>
       ) : (
         <ul className="space-y-3">
           {groups.map((g) => {
