@@ -14,11 +14,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://poker-tracker-lemon.vercel.app"),
   title: "Poker Home Tracker",
   description:
-    "Registro de partidas de poker caseras: recompras, conversión de fichas y liquidación de quién paga a quién.",
+    "Las cuentas de vuestras partidas de poker caseras, sin discusiones: buy-ins, quién paga a quién y ranking del grupo.",
   applicationName: "Poker",
   manifest: "/manifest.webmanifest",
+  openGraph: {
+    title: "Poker Home Tracker",
+    description:
+      "Las cuentas de vuestras partidas de poker, sin discusiones. Buy-ins, quién paga a quién y ranking del grupo.",
+    type: "website",
+    locale: "es_ES",
+    siteName: "Poker Home Tracker",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Poker Home Tracker",
+    description:
+      "Las cuentas de vuestras partidas de poker, sin discusiones.",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
