@@ -3,6 +3,7 @@ import { Trophy, HandCoins, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { EmailAuthForm } from "@/components/email-auth-form";
+import { Onboarding } from "@/components/onboarding";
 
 export default async function LoginPage({
   searchParams,
@@ -19,6 +20,7 @@ export default async function LoginPage({
 
   return (
     <main className="safe-top safe-bottom relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-gradient-to-b from-white to-neutral-100 px-6 py-10">
+      <Onboarding />
       {/* Palos decorativos de fondo */}
       <div aria-hidden className="pointer-events-none absolute inset-0 select-none">
         <span className="absolute -left-6 top-10 text-[120px] leading-none text-neutral-200/70 rotate-[-15deg]">
